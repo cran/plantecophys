@@ -21,6 +21,7 @@
 #' 
 #' Medlyn, B.E., R.A. Duursma, D. Eamus, D.S. Ellsworth, I.C. Prentice, C.V.M. Barton, K.Y. Crous, P. De Angelis, M. Freeman and L. Wingate. 2011. Reconciling the optimal and empirical approaches to modelling stomatal conductance. Global Change Biology. 17:2134-2144.
 #' @export
+#' @importFrom stats optimize
 #' @rdname FARAO
 FARAO <- function(lambda=0.002, Ca=400, VPD=1, 
                   photo=c("BOTH","VCMAX","JMAX"), 
@@ -97,7 +98,7 @@ return(as.data.frame(do.call(rbind,f)))
 OPTfun <- function(Ci,              # mu mol mol-1
                     lambda=0.002,   # mol mol-1
                     Ca=400,         # mu mol mol-1
-                    VPD=1.5,        # kPa
+                    VPD=1,        # kPa
 					          Patm=101,         # ambient pressure, kPa
 					          photo=c("BOTH","VCMAX","JMAX"),
                     energybalance=FALSE,

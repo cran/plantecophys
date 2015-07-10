@@ -1,7 +1,7 @@
 Package: plantecophys
 Type: Package
 Title: Modelling and Analysis of Leaf Gas Exchange Data
-Version: 0.6
+Version: 0.6-3
 Author: Remko Duursma
 Maintainer: Remko Duursma <remkoduursma@gmail.com>
 Description: Coupled leaf gas exchange model, A-Ci curve simulation and
@@ -10,6 +10,6 @@ Description: Coupled leaf gas exchange model, A-Ci curve simulation and
 License: GPL
 LazyData: yes
 NeedsCompilation: no
-Packaged: 2015-05-10 23:40:19 UTC; 30022860
+Packaged: 2015-07-09 23:15:54 UTC; 30022860
 Repository: CRAN
-Date/Publication: 2015-05-11 08:52:27
+Date/Publication: 2015-07-10 20:33:12

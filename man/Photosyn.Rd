@@ -11,8 +11,9 @@ Photosyn(VPD = 1.5, Ca = 400, PPFD = 1500, Tleaf = 25, Patm = 101,
   theta = 0.85, Jmax = 100, Vcmax = 50, gmeso = NULL, Rd0 = 0.92,
   Q10 = 1.92, Rd = NULL, TrefR = 25, Rdayfrac = 1, EaV = 82620.87,
   EdVC = 0, delsC = 645.1013, EaJ = 39676.89, EdVJ = 2e+05,
-  delsJ = 641.3615, Ci = NULL, Tcorrect = TRUE, returnParsOnly = FALSE,
-  whichA = c("Ah", "Amin", "Ac", "Aj"))
+  delsJ = 641.3615, GammaStar = NULL, Km = NULL, Ci = NULL,
+  Tcorrect = TRUE, returnParsOnly = FALSE, whichA = c("Ah", "Amin", "Ac",
+  "Aj"))
 
 Aci(Ci, ...)
 }
@@ -55,7 +56,7 @@ Aci(Ci, ...)
 
 \item{Q10}{Temperature sensitivity of Rd.}
 
-\item{Rd}{Dark respiration rate (mu mol m-2 s-1), optional (if not provided, calculated from Tleaf)}
+\item{Rd}{Dark respiration rate (mu mol m-2 s-1), optional (if not provided, calculated from Tleaf, Rd0, Q10 and TrefR)}
 
 \item{TrefR}{Reference temperature for Rd (Celcius).}
 
@@ -64,6 +65,8 @@ Aci(Ci, ...)
 \item{EaV,EdVC,delsC}{Vcmax temperature response parameters}
 
 \item{EaJ,EdVJ,delsJ}{Jmax temperature response parameters}
+
+\item{Km,GammaStar}{Optionally, provide Michaelis-Menten coefficient for Farquhar model, and Gammastar. If not provided, they are calculated with a built-in function of leaf temperature.}
 
 \item{Ci}{Optional, intercellular CO2 concentration (ppm). If not provided, calculated via gs model.}
 
@@ -79,7 +82,7 @@ Aci(Ci, ...)
 Returns a dataframe.
 }
 \description{
-A coupled photosynthesis - stomatal conductance model, based on the Farquhar model of photosynthesis, and a Ball-Berry type model of stomatatal conductance. Includes temperature sensitivity of photosynthetic parameters, dark respiration (optionally calculated from leaf temperature), and mesophyll conductance.
+A coupled photosynthesis - stomatal conductance model, based on the Farquhar model of photosynthesis, and a Ball-Berry type model of stomatatal conductance. Includes options for temperature sensitivity of photosynthetic parameters, dark respiration (optionally calculated from leaf temperature), and mesophyll conductance.
 }
 \details{
 The coupled photosynthesis - stomatal conductance model finds the intersection between the supply of CO2 by diffusion, and the demand for CO2 by photosynthesis. See Farquhar and Sharkey (1982) for basic description of this type of model.
