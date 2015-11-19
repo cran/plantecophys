@@ -3,6 +3,7 @@
 #' @param data Dataframe with Ci, Photo, Tleaf, PPFD (the last two are optional). For \code{fitacis}, also requires a grouping variable.
 #' @param varnames List of names of variables in the dataset (see Details).
 #' @param Tcorrect If TRUE, Vcmax and Jmax are corrected to 25C. Otherwise, Vcmax and Jmax are estimated at measurement temperature.
+#' @param Patm Atmospheric pressure (kPa)
 #' @param citransition If provided, fits the Vcmax and Jmax limited regions separately (see Details).
 #' @param quiet If TRUE, no messages are written to the screen.
 #' @param startValgrid If TRUE (the default), uses a fine grid of starting values to increase the chance of finding a solution.
@@ -17,6 +18,10 @@
 #' When \code{citransition} is set, it splits the data into a Vcmax-limited (where Ci < citransition), and Jmax-limited region (Ci > citransition). Both parameters are then estimated separately for each region (Rd is estimated only for the Vcmax-limited region). \bold{Note} that the actual transition point as shown in the standard plot of the fitted A-Ci curve may be quite different from that provided, since the fitting method simply decides which part of the dataset to use for which limitation, it does not constrain the actual estimated transition point directly. See the example below.
 #' 
 #' When plotting the fit, the A-Ci curve is simulated using the \code{\link{Aci}} function, with leaf temperature (Tleaf) and PPFD set to the mean value for the dataset. If PPFD is not provided in the dataset, it is assumed to equal 1800 mu mol m-2 s-1.
+#' 
+#' Note that atmospheric pressure (Patm) is taken into account, assuming the original data are in molar units (Ci in mu mol mol-1, or ppm). During the fit, Ci is converted to mu bar, and Km and Gammastar are recalculated accounting for the effects of Patm on the partial pressure of oxygen. When plotting the fit, though, molar units are shown on the X-axis. Thus, you should get (nearly) the same fitted curve when Patm was set to a value lower than 100kPa, but the fitted Vcmax and Jmax will be higher. This is because at low Patm, photosynthetic capacity has to be higher to achieve the same measured photosynthesis rate.
+#' 
+#' Because fitaci returns the fitted nls object (see next section), more details on statistics of the fit can be extracted with standard tools. The Examples below shows the use of the \pkg{nlstools} to extract many details at once.
 #' @return A list of class 'acifit', with five components:
 #' \describe{
 #' \item{df}{A dataframe with the original data, the fitted photosynthetic rate (Amodel), Jmax and Vcmax-limited gross rates (Aj, Ac)}
@@ -57,6 +62,10 @@
 #' # The non-linear regression (nls) fit is stored as well,
 #' summary(f$nlsfit)
 #' 
+#' # Many more details can be extracted with the nlstools package
+#' library(nlstools)
+#' overview(f$nlsfit)
+#'  
 #' # The curve generator is stored as f$Photosyn:
 #' # Calculate photosynthesis at some value for Ci, using estimated parameters and mean Tleaf, 
 #' # PPFD for the dataset.
@@ -81,11 +90,16 @@
 #' f2
 #' @export
 #' @rdname fitaci
-fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PPFD="PARi", Rd="Rd"),
+fitaci <- function(data, 
+                   varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PPFD="PARi", Rd="Rd"),
                    Tcorrect=TRUE, 
+                   Patm=100,
                    citransition=NULL,
                    quiet=FALSE, startValgrid=TRUE, 
                    algorithm="default", useRd=FALSE,  ...){
+  
+  # Make sure data is a dataframe; stuff returned by dplyr is no good
+  data <- as.data.frame(data)
   
   # Set extra parameters if provided
   m <- as.list(match.call())
@@ -139,7 +153,11 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
       warning("Rd found in dataset but useRd set to FALSE. Set to TRUE to use measured Rd.")
     }
   }
-  data$Ci <- data[,varnames$Ci]
+  
+  # Extract Ci and apply pressure correction
+  data$Ci_original <- data[,varnames$Ci]
+  data$Ci <- data[,varnames$Ci] * Patm/100
+  
   data$ALEAF <- data[,varnames$ALEAF]
   
   # Needed to avoid apparent recursion below.
@@ -164,7 +182,7 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
   mi <- which.max(data$Ci)
   maxPhoto <- data$ALEAF[mi]
   Tl <- data$Tleaf[mi]
-  gammastar <- TGammaStar(Tl)
+  gammastar <- TGammaStar(Tl,Patm)
   VJ <- (maxPhoto+Rd_guess) / ((maxCi - gammastar) / (maxCi + 2*gammastar))
   Jmax_guess <- VJ*4
   if(Tcorrect){
@@ -175,8 +193,8 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
   # Guess Vcmax, from section of curve that is definitely Vcmax-limited
   dato <- data[data$Ci < 150 & data$Ci > 60 & data$ALEAF > 0,]
   if(nrow(dato) > 0){
-    Km <- TKm(dato$Tleaf)
-    gammastar <- TGammaStar(dato$Tleaf)
+    Km <- TKm(dato$Tleaf,Patm)
+    gammastar <- TGammaStar(dato$Tleaf,Patm)
     vcmax <- with(dato, (ALEAF + Rd_guess) / ((Ci - gammastar)/(Ci + Km)))
     Vcmax_guess <- median(vcmax)
   } else {
@@ -193,7 +211,7 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
       aciSS <- function(Vcmax, Jmax, Rd){
         Photo_mod <- acifun_wrap(data$Ci, PPFD=data$PPFD, 
                                  Vcmax=Vcmax, Jmax=Jmax, 
-                                 Rd=Rd, Tleaf=data$Tleaf)
+                                 Rd=Rd, Tleaf=data$Tleaf, Patm=Patm)
         
         SS <- sum((data$ALEAF - Photo_mod)^2)
         return(SS)
@@ -212,7 +230,7 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
       aciSS <- function(Vcmax, Jmax, Rd){
         Photo_mod <- acifun_wrap(data$Ci, PPFD=data$PPFD, 
                                  Vcmax=Vcmax, Jmax=Jmax, 
-                                 Rd=Rd, Tleaf=data$Tleaf)
+                                 Rd=Rd, Tleaf=data$Tleaf, Patm=Patm)
         SS <- sum((data$ALEAF - Photo_mod)^2)
         return(SS)
       }
@@ -234,7 +252,7 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
     
     if(!haveRd){
       nlsfit <- nls(ALEAF ~ acifun_wrap(Ci, PPFD=PPFD, Vcmax=Vcmax, 
-                                        Jmax=Jmax, Rd=Rd, Tleaf=Tleaf),
+                                        Jmax=Jmax, Rd=Rd, Tleaf=Tleaf, Patm=Patm),
                       algorithm=algorithm,
                       data=data, control=nls.control(maxiter=500, minFactor=1/10000),
                       start=list(Vcmax=Vcmax_guess, Jmax=Jmax_guess, Rd=Rd_guess))
@@ -243,7 +261,7 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
     } else {
       
       nlsfit <- nls(ALEAF ~ acifun_wrap(Ci, PPFD=PPFD, Vcmax=Vcmax, 
-                                        Jmax=Jmax, Rd=Rd_meas, Tleaf=Tleaf),
+                                        Jmax=Jmax, Rd=Rd_meas, Tleaf=Tleaf, Patm=Patm),
                     algorithm=algorithm,
                     data=data, control=nls.control(maxiter=500, minFactor=1/10000),
                     start=list(Vcmax=Vcmax_guess, Jmax=Jmax_guess))
@@ -266,7 +284,7 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
     
     if(nrow(dat_vcmax) > 0){
       nlsfit_vcmax <- nls(ALEAF ~ acifun_wrap(Ci, PPFD=PPFD, Vcmax=Vcmax, 
-                                        Jmax=10000, Rd=Rd, Tleaf=Tleaf, returnwhat="Ac"),
+                                        Jmax=10000, Rd=Rd, Tleaf=Tleaf, Patm=Patm, returnwhat="Ac"),
                     algorithm=algorithm,
                     data=dat_vcmax, control=nls.control(maxiter=500, minFactor=1/10000),
                     start=list(Vcmax=Vcmax_guess, Rd=Rd_guess))
@@ -282,7 +300,7 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
     if(nrow(dat_jmax) > 0){
       nlsfit_jmax <- nls(ALEAF ~ acifun_wrap(Ci, PPFD=PPFD, Vcmax=10000, 
                                         Jmax=Jmax, Rd=Rd_vcmaxguess, 
-                                        Tleaf=Tleaf, returnwhat="Aj"),
+                                        Tleaf=Tleaf, Patm=Patm, returnwhat="Aj"),
                     algorithm=algorithm,
                     data=dat_jmax, control=nls.control(maxiter=500, minFactor=1/10000),
                     start=list(Jmax=Jmax_guess))
@@ -306,12 +324,14 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
                      Vcmax=p[[1]], Jmax=p[[2]], Rd=p[[3]], 
                      PPFD=data$PPFD, 
                      Tleaf=data$Tleaf,
+                     Patm=Patm,
                      Tcorrect=Tcorrect)
   
   acirun$Ameas <- data$ALEAF
   acirun$ELEAF <- NULL
   acirun$GS <- NULL
   acirun$Ca <- NULL
+  acirun$Ci_original <- data$Ci_original
   names(acirun)[names(acirun) == "ALEAF"] <- "Amodel"
   
   # shuffle
@@ -328,6 +348,7 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
   # Save function itself, the formals contain the parameters used to fit the A-Ci curve.
   # First save Tleaf, PPFD in the formals (as the mean of the dataset)
   formals(Photosyn)$Tleaf <- mean(data$Tleaf)
+  formals(Photosyn)$Patm <- Patm
   formals(Photosyn)$PPFD <- mean(data$PPFD)
   formals(Photosyn)$Vcmax <- l$pars[1]
   formals(Photosyn)$Jmax <- l$pars[2]
@@ -342,6 +363,22 @@ fitaci <- function(data, varnames=list(ALEAF="Photo", Tleaf="Tleaf", Ci="Ci", PP
   l$Jmax_guess <- Jmax_guess
   l$Rd_guess <- Rd_guess
   l$Rd_measured <- haveRd
+  
+  # Store GammaStar and Km
+  if("GammaStar" %in% extrapars) {
+    l$GammaStar <- formals(Photosyn)$GammaStar
+    l$gstarinput <- TRUE
+  } else {
+    l$GammaStar <- TGammaStar(mean(data$Tleaf),Patm)
+    l$gstarinput <- FALSE
+  }
+  if("Km" %in% extrapars){
+    l$Km <- formals(Photosyn)$Km
+    l$kminput <- TRUE
+  } else {
+    l$Km <- TKm(mean(data$Tleaf),Patm)
+    l$kminput <- FALSE
+  }
   
   class(l) <- "acifit"
   
@@ -374,9 +411,21 @@ print.acifit <- function(x,...){
   
   cat("Parameter settings:\n")
   fm <- formals(x$Photosyn)
-  pars <- c("alpha","theta","EaV","EdVC","delsC","EaJ","EdVJ","delsJ")
-  fm <- fm[pars]
-  cat(paste0(names(fm)," = ", unlist(fm),"\n"))
+  pars <- c("Patm","alpha","theta","EaV","EdVC","delsC","EaJ","EdVJ","delsJ")
+  fm <- unlist(fm[pars])
+  cat(paste0(pars," = ", fm,"\n"))
+  
+  if(!x$gstarinput | !x$kminput){
+    cat("\nEstimated from Tleaf (shown at mean Tleaf):\n")
+    if(!x$gstarinput)cat("GammaStar = ",x$GammaStar,"\n")
+    if(!x$kminput)cat("Km = ",x$Km,"\n")
+  }
+  
+  if(x$gstarinput | x$kminput){
+    cat("\nSet by user:\n")
+    if(x$gstarinput)cat("GammaStar = ",x$GammaStar,"\n")
+    if(x$kminput)cat("Km = ",x$Km,"\n")
+  }
   
 }
 
@@ -415,35 +464,43 @@ fitted.acifit <- function(object,...){
 #' @param xlim Limits for the X axis, if left blank estimated from data
 #' @param ylim Limits for the Y axis, if left blank estimated from data
 #' @param whichA By default all three photosynthetic rates are plotted (Aj=Jmax-limited (blue), Ac=Vcmax-limited (red), Hyperbolic minimum (black)). Or, specify one or two of them. 
-#' @param what The default is to plot both the data and the model fit, or specify 'data' or 'model' to plot one of them.
+#' @param what The default is to plot both the data and the model fit, or specify 'data' or 'model' to plot one of them, or 'none' for neither (only the plot region is set up)
 #' @param add If TRUE, adds to the current plot
 #' @param pch The plotting symbol for the data
 #' @param addzeroline If TRUE, the default, adds a dashed line at y=0
 #' @param addlegend If TRUE, adds a legend (by default does not add a legend if add=TRUE)
+#' @param legendbty Box type for the legend, passed to argument bty in \code{\link{legend}}.
 #' @param transitionpoint For plot.acifit, whether to plot a symbol at the transition point.
-#' @param lwd Line widths, can be a vector of length 2 (first element for both rates, second one for the limiting rate).
+#' @param linecols Vector of three colours for the lines (limiting rate, Ac, Aj), if one value provided it is used for all three.
+#' @param lwd Line widths, can be a vector of length 2 (first element for Ac and Aj, second one for the limiting rate).
 #' @rdname fitaci
 #' @importFrom graphics points
 #' @importFrom graphics abline
 #' @importFrom graphics legend
-plot.acifit <- function(x, what=c("data","model"), xlim=NULL, ylim=NULL, 
+plot.acifit <- function(x, what=c("data","model","none"), xlim=NULL, ylim=NULL, 
                         whichA=c("Ac","Aj","Amin"), add=FALSE, pch=19, 
-                        addzeroline=TRUE, addlegend=!add, 
-                        transitionpoint=TRUE, 
+                        addzeroline=TRUE, addlegend=!add, legendbty='o',
+                        transitionpoint=TRUE, linecols=c("black","blue","red"),
                         lwd=c(1,2),
                         ...){
   
+  # Note that Ci on the X-axis is in molar units!
   if(is.null(ylim))ylim <- with(x$df, c(min(Ameas), 1.1*max(Ameas)))
-  if(is.null(xlim))xlim <- with(x$df,c(0, max(Ci)))
+  if(is.null(xlim))xlim <- with(x$df,c(0, max(Ci_original)))
   if(length(lwd)==1)lwd <- c(lwd,lwd)
+  if(length(linecols)==1)linecols <- rep(linecols,3)
   
-  Ci <- with(x$df, seq(min(Ci), max(Ci), length=101))
+  # Vector of Ci values at which to evaluate fitted ACi curve.
+  Ci <- with(x$df, seq(min(Ci_original), max(Ci_original), length=101))
   
   # Exact model used to fit the A-Ci curve was saved in the object.
-  pred <- x$Photosyn(Ci=Ci)
+  # (parameter settings etc. are preserved)
+  pcor <- mean(x$df$Patm)/100
+  pred <- x$Photosyn(Ci=Ci * pcor)
+  pred$Ci_original <- pred$Ci / pcor
   
   if(!add){
-    with(x$df, plot(Ci, Ameas, type='n',
+    with(x$df, plot(Ci_original, Ameas, type='n',
                     ylim=ylim,
                     xlim=xlim,
                     xlab=expression(italic(C)[i]~~(ppm)),
@@ -451,16 +508,16 @@ plot.acifit <- function(x, what=c("data","model"), xlim=NULL, ylim=NULL,
                     ...
     ))
   }
-  if("data" %in% what)with(x$df, points(Ci, Ameas, pch=pch,...))
+  if("data" %in% what)with(x$df, points(Ci_original, Ameas, pch=pch,...))
   
   if("model" %in% what){
-    if("Aj" %in% whichA)with(pred, points(Ci, Aj-Rd, type='l', col="blue",lwd=lwd[1]))
-    if("Ac" %in% whichA)with(pred, points(Ci, Ac-Rd, type='l', col="red",lwd=lwd[1]))
-    if("Amin" %in% whichA)with(pred, points(Ci, ALEAF, type='l', col="black", lwd=lwd[2]))
+    if("Aj" %in% whichA)with(pred, points(Ci_original, Aj-Rd, type='l', col=linecols[2],lwd=lwd[1]))
+    if("Ac" %in% whichA)with(pred, points(Ci_original, Ac-Rd, type='l', col=linecols[3],lwd=lwd[1]))
+    if("Amin" %in% whichA)with(pred, points(Ci_original, ALEAF, type='l', col=linecols[1], lwd=lwd[2]))
   }
   
-  if(transitionpoint)
-    points(x$Ci_transition, x$Photosyn(Ci=x$Ci_transition)$ALEAF, pch=21, bg="lightgrey", cex=0.8)
+  if(transitionpoint && "model" %in% what)
+    points(x$Ci_transition / pcor, x$Photosyn(Ci=x$Ci_transition)$ALEAF, pch=21, bg="lightgrey", cex=0.8)
   
   if(addzeroline)
     abline(h=0, lty=3)
@@ -468,7 +525,8 @@ plot.acifit <- function(x, what=c("data","model"), xlim=NULL, ylim=NULL,
   if(addlegend){
     legend("bottomright", c(expression(italic(A)[c]),
                             expression(italic(A)[j]),
-                            "Limiting rate"), lty=1, lwd=c(1,1,2), col=c("red","blue","black"))
+                            "Limiting rate"), lty=1, lwd=c(lwd[1],lwd[1],lwd[2]), 
+           col=linecols[3:1], bty=legendbty)
   }
   
 }

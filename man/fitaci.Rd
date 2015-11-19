@@ -13,7 +13,7 @@
 \title{Fit the Farquhar-Berry-von Caemmerer model of leaf photosynthesis}
 \usage{
 fitaci(data, varnames = list(ALEAF = "Photo", Tleaf = "Tleaf", Ci = "Ci", PPFD
-  = "PARi", Rd = "Rd"), Tcorrect = TRUE, citransition = NULL,
+  = "PARi", Rd = "Rd"), Tcorrect = TRUE, Patm = 100, citransition = NULL,
   quiet = FALSE, startValgrid = TRUE, algorithm = "default",
   useRd = FALSE, ...)
 
@@ -25,14 +25,16 @@ fitaci(data, varnames = list(ALEAF = "Photo", Tleaf = "Tleaf", Ci = "Ci", PPFD
 
 \method{fitted}{acifit}(object, ...)
 
-\method{plot}{acifit}(x, what = c("data", "model"), xlim = NULL,
+\method{plot}{acifit}(x, what = c("data", "model", "none"), xlim = NULL,
   ylim = NULL, whichA = c("Ac", "Aj", "Amin"), add = FALSE, pch = 19,
-  addzeroline = TRUE, addlegend = !add, transitionpoint = TRUE,
-  lwd = c(1, 2), ...)
+  addzeroline = TRUE, addlegend = !add, legendbty = "o",
+  transitionpoint = TRUE, linecols = c("black", "blue", "red"), lwd = c(1,
+  2), ...)
 
 fitacis(data, group, progressbar = TRUE, quiet = FALSE, ...)
 
-\method{plot}{acifits}(x, how = c("manyplots", "oneplot"), ...)
+\method{plot}{acifits}(x, how = c("manyplots", "oneplot"), highlight = NULL,
+  ylim = NULL, xlim = NULL, ...)
 
 \method{coef}{acifits}(object, ...)
 }
@@ -42,6 +44,8 @@ fitacis(data, group, progressbar = TRUE, quiet = FALSE, ...)
 \item{varnames}{List of names of variables in the dataset (see Details).}
 
 \item{Tcorrect}{If TRUE, Vcmax and Jmax are corrected to 25C. Otherwise, Vcmax and Jmax are estimated at measurement temperature.}
+
+\item{Patm}{Atmospheric pressure (kPa)}
 
 \item{citransition}{If provided, fits the Vcmax and Jmax limited regions separately (see Details).}
 
@@ -57,7 +61,7 @@ fitacis(data, group, progressbar = TRUE, quiet = FALSE, ...)
 
 \item{object}{For coef.acifit, and print.acifit, the object returned by \code{fitaci}}
 
-\item{what}{The default is to plot both the data and the model fit, or specify 'data' or 'model' to plot one of them.}
+\item{what}{The default is to plot both the data and the model fit, or specify 'data' or 'model' to plot one of them, or 'none' for neither (only the plot region is set up)}
 
 \item{xlim}{Limits for the X axis, if left blank estimated from data}
 
@@ -73,15 +77,21 @@ fitacis(data, group, progressbar = TRUE, quiet = FALSE, ...)
 
 \item{addlegend}{If TRUE, adds a legend (by default does not add a legend if add=TRUE)}
 
+\item{legendbty}{Box type for the legend, passed to argument bty in \code{\link{legend}}.}
+
 \item{transitionpoint}{For plot.acifit, whether to plot a symbol at the transition point.}
 
-\item{lwd}{Line widths, can be a vector of length 2 (first element for both rates, second one for the limiting rate).}
+\item{linecols}{Vector of three colours for the lines (limiting rate, Ac, Aj), if one value provided it is used for all three.}
+
+\item{lwd}{Line widths, can be a vector of length 2 (first element for Ac and Aj, second one for the limiting rate).}
 
 \item{group}{For batch analysis using \code{fitacis}, the name of the grouping variable in the dataframe.}
 
 \item{progressbar}{For \code{fitacis}, whether to display a progress bar (default is TRUE).}
 
 \item{how}{If 'manyplots', produces a single plot for each A-Ci curve. If 'oneplot' overlays all of them.}
+
+\item{highlight}{If a name of a curve is given (check names(object), where object is returned by acifits), all curves are plotted in grey, with the highlighted one on top.}
 
 \item{\dots}{Further arguments passed to \code{\link{Photosyn}}}
 }
@@ -104,6 +114,10 @@ Uses non-linear regression to fit an A-Ci curve. No assumptions are made on whic
 When \code{citransition} is set, it splits the data into a Vcmax-limited (where Ci < citransition), and Jmax-limited region (Ci > citransition). Both parameters are then estimated separately for each region (Rd is estimated only for the Vcmax-limited region). \bold{Note} that the actual transition point as shown in the standard plot of the fitted A-Ci curve may be quite different from that provided, since the fitting method simply decides which part of the dataset to use for which limitation, it does not constrain the actual estimated transition point directly. See the example below.
 
 When plotting the fit, the A-Ci curve is simulated using the \code{\link{Aci}} function, with leaf temperature (Tleaf) and PPFD set to the mean value for the dataset. If PPFD is not provided in the dataset, it is assumed to equal 1800 mu mol m-2 s-1.
+
+Note that atmospheric pressure (Patm) is taken into account, assuming the original data are in molar units (Ci in mu mol mol-1, or ppm). During the fit, Ci is converted to mu bar, and Km and Gammastar are recalculated accounting for the effects of Patm on the partial pressure of oxygen. When plotting the fit, though, molar units are shown on the X-axis. Thus, you should get (nearly) the same fitted curve when Patm was set to a value lower than 100kPa, but the fitted Vcmax and Jmax will be higher. This is because at low Patm, photosynthetic capacity has to be higher to achieve the same measured photosynthesis rate.
+
+Because fitaci returns the fitted nls object (see next section), more details on statistics of the fit can be extracted with standard tools. The Examples below shows the use of the \pkg{nlstools} to extract many details at once.
 }
 \examples{
 # Fit an A-Ci curve on a dataframe that contains Ci, Photo and optionally Tleaf and PPFD.
@@ -136,6 +150,10 @@ fitted(f)
 
 # The non-linear regression (nls) fit is stored as well,
 summary(f$nlsfit)
+
+# Many more details can be extracted with the nlstools package
+library(nlstools)
+overview(f$nlsfit)
 
 # The curve generator is stored as f$Photosyn:
 # Calculate photosynthesis at some value for Ci, using estimated parameters and mean Tleaf,

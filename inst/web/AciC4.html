@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>AciC4. plantecophys 0.6-4</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="
+Rhys Whitley
+">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">plantecophys 0.6-4</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>C4 Photosynthesis</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><div>AciC4(Ci, PPFD&nbsp;=&nbsp;1500, Tleaf&nbsp;=&nbsp;25, VPMAX25&nbsp;=&nbsp;120, JMAX25&nbsp;=&nbsp;400, Vcmax&nbsp;=&nbsp;60, Vpr&nbsp;=&nbsp;80, alpha&nbsp;=&nbsp;0, gbs&nbsp;=&nbsp;0.003, O2&nbsp;=&nbsp;210, x&nbsp;=&nbsp;0.4, THETA&nbsp;=&nbsp;0.7, Q10&nbsp;=&nbsp;2.3, RD0&nbsp;=&nbsp;1, RTEMP&nbsp;=&nbsp;25, TBELOW&nbsp;=&nbsp;0, DAYRESP&nbsp;=&nbsp;1, Q10F&nbsp;=&nbsp;2, FRM&nbsp;=&nbsp;0.5, ...)</div></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>Ci</dt>
+      <dd>Intercellular CO2 concentration (ppm)</dd>
+      <dt>PPFD</dt>
+      <dd>Photosynthetic photon flux density (mu mol m-2 s-1)</dd>
+      <dt>Tleaf</dt>
+      <dd>Leaf temperature (C)</dd>
+      <dt>VPMAX25</dt>
+      <dd>The maximum rate of PEP carboxylation (mu mol m-2 s-1)</dd>
+      <dt>JMAX25</dt>
+      <dd>Maximum electron transport rate (at 25C)</dd>
+      <dt>Vcmax</dt>
+      <dd>Maximum rate of carboxylation (mu mol m-2 s-1) (at 25C)</dd>
+      <dt>Vpr</dt>
+      <dd>PEP regeneration (mu mol m-2 s-1)</dd>
+      <dt>alpha</dt>
+      <dd>Fraction of PSII activity in the bundle sheath (-)</dd>
+      <dt>gbs</dt>
+      <dd>Bundle sheath conductance (mol m-2 s-1)</dd>
+      <dt>O2</dt>
+      <dd>Mesophyll O2 concentration</dd>
+      <dt>x</dt>
+      <dd>Partitioning factor for electron transport</dd>
+      <dt>THETA</dt>
+      <dd>Shape parameter of the non-rectangular hyperbola</dd>
+      <dt>Q10</dt>
+      <dd>T-dependence parameter for Michaelis-Menten coefficients.</dd>
+      <dt>RD0</dt>
+      <dd>Respiration at base temperature (RTEMP) (mu mol m-2 s-1)</dd>
+      <dt>RTEMP</dt>
+      <dd>Base leaf temperature for respiration (C)</dd>
+      <dt>TBELOW</dt>
+      <dd>Below this T, respiration is zero.</dd>
+      <dt>DAYRESP</dt>
+      <dd>Fraction respiration in the light vs. that measured in the dark</dd>
+      <dt>Q10F</dt>
+      <dd>T-dependence parameter of respiration</dd>
+      <dt>FRM</dt>
+      <dd>Fraction of dark respiration that is mesophyll respiration (Rm)</dd>
+      <dt>...</dt>
+      <dd>Further arguments (currently ignored).</dd>
+    </dl>
+    
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>An implementation of the A-Ci curve for C4 plants, based on von Caemmerer et al. (2000)</p>
+  
+    </div>
+
+    <div class="Details">
+      <h2>Details</h2>
+
+      <p>Note that the temperature response parameters have been hardwired in this function, and are based on von Caemmerer (2000).</p>
+  
+      <p>Note that it is not (yet) possible to fit this curve to observations of photosynthesis (see <code><a href='fitaci.html'>fitaci</a></code> to fit the C3 model of photosynthesis).</p>
+  
+    </div>
+
+    <div class="References">
+      <h2>References</h2>
+
+      <p>Caemmerer, S.V., 2000. Biochemical Models of Leaf Photosynthesis. Csiro Publishing.</p>
+  
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'># Simulate a C4 A-Ci curve.
+aci &lt;- AciC4(Ci=seq(5,600, length=101))
+with(aci, plot(Ci, ALEAF, type=&#39;l&#39;, ylim=c(0,max(ALEAF))))
+</div>
+<p><img src='AciC4-2.png' alt='' width='540' height='400' /></p></pre>
+  </div>
+  <div class="span4">
+    <!-- <ul>
+      <li>AciC4</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+      
+    
+    <h2>Author</h2>
+    
+Rhys Whitley
+
+    
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>
