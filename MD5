@@ -1,4 +1,4 @@
-fe681b3be48a80a5633a0cbdad854e5d *DESCRIPTION
+481f6eb3068149c59fab051c9a19b521 *DESCRIPTION
 13764431a22eb79ac31d13ab57c96f5a *NAMESPACE
 f4a545f7c0eba82d4282fa4f2b6558c6 *R/AciC4.R
 1cebcb738d1802f7c59fc9b7c9fd2bbb *R/FARAO.R
@@ -8,15 +8,15 @@ f4a545f7c0eba82d4282fa4f2b6558c6 *R/AciC4.R
 353e2af1f0d5e3f675c80ddb766abcb4 *R/Tresponsefunctions.R
 6b57b66738dbb19961de24037c975e07 *R/findCiTransition.R
 7503b1f8a571c000c5c9fc2a91655ed7 *R/fitBB.R
-04ee1885f90711c8396ecbf630e82f81 *R/fitaci.R
-63257db029688c6684e903e89abad8c2 *R/fitaci_methods.R
-da2a89929f7cff222a8d5f23dc8c404e *R/fitacis.R
+5cec084a82e597f9b1e4854384dd1021 *R/fitaci.R
+3c8f36a0243a99b007444769bbe9ab3d *R/fitaci_methods.R
+f59768e48482d18d3de72aca768b5d45 *R/fitacis.R
 6257363f716a7aa1f5e1154668856a39 *R/photosyn.R
 2b7bb0226a7cef1d4d5a02cad410f336 *R/plantecophys-package.R
 b96ad913dd7be0bbc0c03466743772c6 *R/utils.R
-3690785f74a40bc6463b328435cb9dd8 *build/partial.rdb
+31be0c70534152a00f1ef0c9c17a8c6f *build/partial.rdb
 ca441b90209dc45ceb2b7f38e7ffbc2e *data/acidata1.rda
-5d22554be22f5af4df8fb0d45c1c01e0 *data/manyacidat.rda
+ce70089a7d10eb6fef6f538931b749c8 *data/manyacidat.rda
 30acbe40039ff392b1822b96b8dc77ea *inst/CITATION
 681c8b200abfa374b580927613b10d4b *man/AciC4.Rd
 7566ef9ef704e73418edca4e0ece8e27 *man/Conversions.Rd
@@ -25,8 +25,8 @@ bbacfb8f0e9016c96392136f16aeba66 *man/Photosyn.Rd
 8a49c98893b5c1580df5d95968d3914c *man/PhotosynEB.Rd
 47499594a39d1ab68368bdbf66285987 *man/acidata1.Rd
 20fe993228dc681c5776313d6ba97aa3 *man/fitBB.Rd
-ce1ec980d88204da13fbcd0fc0e8a75e *man/fitaci.Rd
-5babcd1cf64004c591eb70e3b22ac64a *man/fitacis.Rd
+2b442f91d3b432f9e3c740a7b6a1fedf *man/fitaci.Rd
+b027a7cde8665ca56296ae6776f1f9c7 *man/fitacis.Rd
 5094e23c5a8164fee25eb6139707d4a2 *man/manyacidat.Rd
 9ba740b3ef82e4abcdf168b64c3e311a *man/plantecophys-package.Rd
 ec7aa81092204793a61293f947e93069 *tests/testthat.R

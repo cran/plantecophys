@@ -19,6 +19,7 @@
 #' @param EaV,EdVC,delsC Vcmax temperature response parameters
 #' @param EaJ,EdVJ,delsJ Jmax temperature response parameters
 #' @param Km,GammaStar Optionally, provide Michaelis-Menten coefficient for Farquhar model, and Gammastar. If not provided, they are calculated with a built-in function of leaf temperature.
+#' @param id Names of variables (quoted, can be a vector) in the original dataset to be stored in the result. Most useful when using \code{\link{fitacis}}, see there for examples of its use.
 #' @param \dots Further arguments (ignored at the moment).
 #' @details 
 #' 
@@ -166,6 +167,7 @@ fitaci <- function(data,
                    
                    GammaStar = NULL,
                    Km = NULL,
+                   id=NULL,
                    ...){
   
   fitmethod <- match.arg(fitmethod)
@@ -191,6 +193,7 @@ fitaci <- function(data,
   # Set measured Rd if provided (or warn when provided but not used)
   Rd_meas <- set_Rdmeas(varnames, data, useRd, citransition, quiet)
   haveRd <- !is.na(Rd_meas)
+  if(haveRd & useRd & fitmethod == "bilinear")Warning("Measured Rd not yet used with bilinear fitmethod.")
   
   # Extract Ci and apply pressure correction
   data$Ci_original <- data[,varnames$Ci]
@@ -199,6 +202,10 @@ fitaci <- function(data,
   # Extract measured net leaf photosynthesis
   data$ALEAF <- data[,varnames$ALEAF]
   
+  # Calculate Km and GammaStar, if not input 
+  # (Photosyn does this as well, but have to repeat it here since we cannot have NULL in call to nls)
+  Km_v <- if(!kminput) TKm(data$Tleaf, Patm) else rep(Km, nrow(data))
+  GammaStar_v <- if(!gstarinput)TGammaStar(data$Tleaf, Patm) else rep(GammaStar, nrow(data))
   
   # Citransition not defined:
   # default method = full non-linear model
@@ -208,13 +215,13 @@ fitaci <- function(data,
     if(fitmethod == "default"){
     
       f <- do_fit_method1(data, haveRd, Rd_meas, Patm, startValgrid, Tcorrect, algorithm,
-                          alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ)
+                          alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ,GammaStar_v,Km_v)
     } 
     if(fitmethod == "bilinear"){
       
       f <- do_fit_method_bilinear_bestcitrans(data, haveRd, fitTPU, Rd_meas, Patm, Tcorrect, algorithm,
                                               alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ,
-                                              GammaStar, Km)
+                                              GammaStar_v, Km_v)
     }
   }
   
@@ -223,14 +230,17 @@ fitaci <- function(data,
   # bilinear - two linear fits
   if(!is.null(citransition)){
     
+    # NOTE-- bug in default method when citransition specified. Switch off for now.
+    fitmethod <- "bilinear"
+    
     if(fitmethod == "default"){
       f <- do_fit_method2(data, haveRd, Rd_meas, Patm, citransition, Tcorrect, algorithm,
-                          alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ)
+                          alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ,GammaStar_v,Km_v)
     }
     if(fitmethod == "bilinear"){
       f <- do_fit_method_bilinear(data, haveRd, Rd_meas, Patm, citransition, NULL, Tcorrect, algorithm,
                                 alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ,
-                                GammaStar, Km)
+                                GammaStar_v, Km_v)
     }
     
   }
@@ -240,12 +250,12 @@ fitaci <- function(data,
   if(!("TPU" %in% names(f)))f$TPU <- 1000
   
   # Only used to add 'Amodel' to the output
-  acirun <- do_acirun(data,f,Patm,Tcorrect,
+  acirun <- do_acirun(data,f,Patm,Tcorrect,  # Note several parameters are stored in 'f'
                       alpha=alpha,theta=theta,
                       gmeso=gmeso,EaV=EaV,
                       EdVC=EdVC,delsC=delsC,
                       EaJ=EaJ,EdVJ=EdVJ,
-                      delsJ=delsJ)
+                      delsJ=delsJ,GammaStar=GammaStar_v, Km=Km_v)
 
   # If Ap is never actually limiting, set estimated TPU to 1000
   # This means there is no evidence for TPU-limitation.
@@ -254,6 +264,14 @@ fitaci <- function(data,
   # Organize output
   l <- list()  
   l$df <- acirun[order(acirun$Ci),]
+  if(!is.null(id)){
+    if(any(!id %in% names(data))){
+      Warning("id ignored - not all variables are in dataset provided")
+    } else {
+      l$df <- cbind(l$df, data[id])
+    }
+  }
+  l$id <- id
   l$pars <- f$pars
   if(fitTPU){
     val <- ifelse(f$TPU < 1000, f$TPU, NA)
@@ -296,11 +314,11 @@ fitaci <- function(data,
   l$Rd_measured <- haveRd
   
   # Save GammaStar and Km (either evaluated at mean temperature, or input if provided)
-  if(gstarinput)l$GammaStar <- GammaStar else l$GammaStar <- TGammaStar(mean(data$Tleaf),Patm)
-  if(kminput)l$Km <- Km else l$Km <- TKm(mean(data$Tleaf),Patm)
-  
+  l$GammaStar <- mean(GammaStar_v)
+  l$Km <- mean(Km_v)
   l$kminput <- kminput
   l$gstarinput <- gstarinput
+  
   l$fitmethod <- fitmethod
   l$citransition <- ifelse(is.null(citransition), NA, citransition)
   l$gmeso <- ifelse(is.null(gmeso) || gmeso < 0, NA, gmeso)
@@ -351,7 +369,7 @@ guess_Vcmax <- function(data, Jmax_guess, Rd_guess, Patm, Tcorrect){
     Vcmax_guess <- Jmax_guess/1.8 
   }
   if(Tcorrect){
-    Teffect <- TVcmax(mean(dato$Tleaf), EaV=82620.87, delsC=645.1013, EdVC=0)
+    Teffect <- TVcmax(mean(data$Tleaf), EaV=82620.87, delsC=645.1013, EdVC=0)
     Vcmax_guess <- Vcmax_guess / Teffect
   }
   return(Vcmax_guess)
@@ -429,7 +447,7 @@ set_Rdmeas <- function(varnames, data, useRd, citransition, quiet){
 
 
 do_fit_method1 <- function(data, haveRd, Rd_meas, Patm, startValgrid, Tcorrect, algorithm,
-                           alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ){
+                           alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ,GammaStar,Km){
   
   # Guess Rd (starting value)
   Rd_guess <- guess_Rd(haveRd, Rd_meas)
@@ -448,7 +466,7 @@ do_fit_method1 <- function(data, haveRd, Rd_meas, Patm, startValgrid, Tcorrect, 
                                  gmeso=gmeso,EaV=EaV,
                                  EdVC=EdVC,delsC=delsC,
                                  EaJ=EaJ,EdVJ=EdVJ,
-                                 delsJ=delsJ)
+                                 delsJ=delsJ,Km=Km,GammaStar=GammaStar)
         
         SS <- sum((data$ALEAF - Photo_mod)^2)
         return(SS)
@@ -474,7 +492,7 @@ do_fit_method1 <- function(data, haveRd, Rd_meas, Patm, startValgrid, Tcorrect, 
                                  gmeso=gmeso,EaV=EaV,
                                  EdVC=EdVC,delsC=delsC,
                                  EaJ=EaJ,EdVJ=EdVJ,
-                                 delsJ=delsJ)
+                                 delsJ=delsJ,Km=Km,GammaStar=GammaStar)
         SS <- sum((data$ALEAF - Photo_mod)^2)
         return(SS)
       }
@@ -499,7 +517,7 @@ do_fit_method1 <- function(data, haveRd, Rd_meas, Patm, startValgrid, Tcorrect, 
                                       gmeso=gmeso,EaV=EaV,
                                       EdVC=EdVC,delsC=delsC,
                                       EaJ=EaJ,EdVJ=EdVJ,
-                                      delsJ=delsJ),
+                                      delsJ=delsJ,Km=Km,GammaStar=GammaStar),
                   algorithm=algorithm,
                   data=data, control=nls.control(maxiter=500, minFactor=1/10000),
                   start=list(Vcmax=Vcmax_guess, Jmax=Jmax_guess, Rd=Rd_guess)), silent=TRUE)
@@ -520,7 +538,7 @@ do_fit_method1 <- function(data, haveRd, Rd_meas, Patm, startValgrid, Tcorrect, 
                                       gmeso=gmeso,EaV=EaV,
                                       EdVC=EdVC,delsC=delsC,
                                       EaJ=EaJ,EdVJ=EdVJ,
-                                      delsJ=delsJ),
+                                      delsJ=delsJ,Km=Km,GammaStar=GammaStar),
                   algorithm=algorithm,
                   data=data, control=nls.control(maxiter=500, minFactor=1/10000),
                   start=list(Vcmax=Vcmax_guess, Jmax=Jmax_guess)), silent=TRUE)
@@ -545,7 +563,7 @@ do_fit_method1 <- function(data, haveRd, Rd_meas, Patm, startValgrid, Tcorrect, 
 
 
 do_fit_method2 <- function(data, haveRd, Rd_meas, Patm, citransition, Tcorrect, algorithm,
-                           alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ){
+                           alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ,GammaStar,Km){
   
   # Guess Rd (starting value)
   Rd_guess <- guess_Rd(haveRd, Rd_meas)
@@ -558,14 +576,14 @@ do_fit_method2 <- function(data, haveRd, Rd_meas, Patm, citransition, Tcorrect, 
   
   if(nrow(dat_vcmax) > 0){
     nlsfit_vcmax <- nls(ALEAF ~ acifun_wrap(Ci, PPFD=PPFD, Vcmax=Vcmax, 
-                                            Jmax=10^6, Rd=Rd, Tleaf=Tleaf, 
+                                            Jmax=10^6, Rd=Rd, Tleaf=mean(Tleaf), 
                                             Patm=Patm, returnwhat="Ac",
                                             TcorrectVJ=Tcorrect,
                                             alpha=alpha,theta=theta,
                                             gmeso=gmeso,EaV=EaV,
                                             EdVC=EdVC,delsC=delsC,
                                             EaJ=EaJ,EdVJ=EdVJ,
-                                            delsJ=delsJ),
+                                            delsJ=delsJ,Km=Km,GammaStar=GammaStar),
                         algorithm=algorithm,
                         data=dat_vcmax, control=nls.control(maxiter=500, minFactor=1/10000),
                         start=list(Vcmax=Vcmax_guess, Rd=Rd_guess))
@@ -581,13 +599,13 @@ do_fit_method2 <- function(data, haveRd, Rd_meas, Patm, citransition, Tcorrect, 
   if(nrow(dat_jmax) > 0){
     nlsfit_jmax <- nls(ALEAF ~ acifun_wrap(Ci, PPFD=PPFD, Vcmax=10000, 
                                            Jmax=Jmax, Rd=Rd_vcmaxguess, 
-                                           Tleaf=Tleaf, Patm=Patm, returnwhat="Aj",
+                                           Tleaf=mean(Tleaf), Patm=Patm, returnwhat="Aj",
                                            TcorrectVJ=Tcorrect,
                                            alpha=alpha,theta=theta,
                                            gmeso=gmeso,EaV=EaV,
                                            EdVC=EdVC,delsC=delsC,
                                            EaJ=EaJ,EdVJ=EdVJ,
-                                           delsJ=delsJ),
+                                           delsJ=delsJ,Km=Km,GammaStar=GammaStar),
                        algorithm=algorithm,
                        data=dat_jmax, control=nls.control(maxiter=500, minFactor=1/10000),
                        start=list(Jmax=Jmax_guess))
@@ -609,9 +627,10 @@ do_fit_method2 <- function(data, haveRd, Rd_meas, Patm, citransition, Tcorrect, 
 
 
 
-do_fit_method_bilinear <- function(data, haveRd, Rd_meas, Patm, citransition, citransition2=NULL, Tcorrect, algorithm,
-                           alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ,
-                           GammaStar, Km){
+do_fit_method_bilinear <- function(data, haveRd, Rd_meas, Patm, citransition, citransition2=NULL,
+                                   Tcorrect, algorithm,
+                                   alpha,theta,gmeso,EaV,EdVC,delsC,EaJ,EdVJ,delsJ,
+                                   GammaStar, Km){
   
   # Calculate T-dependent parameters
   ppar <- Photosyn(Tleaf=data$Tleaf, Patm=Patm, Tcorrect=Tcorrect,
@@ -737,7 +756,7 @@ do_fit_method_bilinear_bestcitrans <- function(data, haveRd, fitTPU, Rd_meas, Pa
                          gmeso=gmeso,EaV=EaV,
                          EdVC=EdVC,delsC=delsC,
                          EaJ=EaJ,EdVJ=EdVJ,
-                         delsJ=delsJ)
+                         delsJ=delsJ,GammaStar=GammaStar,Km=Km)
         
         SS[i] <- sum((run$Ameas - run$Amodel)^2)  
     } else {
