@@ -25,6 +25,8 @@ fitacis(data, group, fitmethod = c("default", "bilinear"),
 
 \item{id}{Names of variables (quoted, can be a vector) in the original dataset to return as part of the coef() statement. Useful for keeping track of species names, treatment levels, etc. See Details and Examples.}
 
+\item{\dots}{Further arguments passed to \code{\link{fitaci}} (in the case of \code{fitacis}), or \code{\link{plot.acifit}} (in the case of \code{plot.acifits}).}
+
 \item{x}{For \code{plot.acifits}, an object returned from \code{fitacis}}
 
 \item{how}{If 'manyplots', produces a single plot for each A-Ci curve. If 'oneplot' overlays all of them.}
@@ -36,8 +38,6 @@ fitacis(data, group, fitmethod = c("default", "bilinear"),
 \item{add}{If TRUE, adds the plots to a current plot.}
 
 \item{what}{What to plot, either 'model' (the fitted curve), 'data' or 'none'. See examples.}
-
-\item{\dots}{Further arguments passed to \code{\link{fitaci}} (in the case of \code{fitacis}), or \code{\link{plot.acifit}} (in the case of \code{plot.acifits}).}
 }
 \description{
 A convenient function to fit many curves at once, by calling \code{\link{fitaci}} for every group in the dataset. The data provided must include a variable that uniquely identifies each A-Ci curve.
@@ -51,9 +51,12 @@ A convenient function to fit many curves at once, by calling \code{\link{fitaci}
 }
 \examples{
 
+# Example data, reduced version to save check time:
+manyacidat2 <- droplevels(manyacidat[manyacidat$Curve \%in\% levels(manyacidat$Curve)[1:10],])
+
 # Fit many curves (using an example dataset)
 # The bilinear method is much faster, but compare using 'default'!
-fits <- fitacis(manyacidat, "Curve", fitmethod="bilinear")
+fits <- fitacis(manyacidat2, "Curve", fitmethod="bilinear")
 with(coef(fits), plot(Vcmax, Jmax))
 
 # The resulting object is a list, with each component an object as returned by fitaci
@@ -76,6 +79,8 @@ plot(rmses, type='h', ylab="RMSE", xlab="Curve nr")
 # And plot the worst-fitting curve:
 plot(fits[[which.max(rmses)]])
 
+# Not run to save check time
+\dontrun{ 
 # It is very straightforward to summarize the coefficients by a factor variable
 # that was contained in the original data. In manyacidat, there is a factor variable
 # 'treatment'.
@@ -84,9 +89,8 @@ fits <- fitacis(manyacidat, "Curve", fitmethod="bilinear", id="treatment")
 
 # And now use this to plot Vcmax by treatment.
 boxplot(Vcmax ~ treatment, data=coef(fits), ylim=c(0,130))
-
+}
 }
 \references{
 Duursma, R.A., 2015. Plantecophys - An R Package for Analysing and Modelling Leaf Gas Exchange Data. PLoS ONE 10, e0143346. doi:10.1371/journal.pone.0143346
 }
-

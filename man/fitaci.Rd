@@ -8,11 +8,11 @@
 fitaci(data, varnames = list(ALEAF = "Photo", Tleaf = "Tleaf", Ci = "Ci", PPFD
   = "PARi", Rd = "Rd"), Tcorrect = TRUE, Patm = 100, citransition = NULL,
   quiet = FALSE, startValgrid = TRUE, fitmethod = c("default",
-  "bilinear"), algorithm = "default", fitTPU = FALSE, useRd = FALSE,
-  PPFD = NULL, Tleaf = NULL, alpha = 0.24, theta = 0.85, gmeso = NULL,
-  EaV = 82620.87, EdVC = 0, delsC = 645.1013, EaJ = 39676.89,
-  EdVJ = 2e+05, delsJ = 641.3615, GammaStar = NULL, Km = NULL,
-  id = NULL, ...)
+  "bilinear"), algorithm = "default", fitTPU = FALSE, alphag = 0,
+  useRd = FALSE, PPFD = NULL, Tleaf = NULL, alpha = 0.24,
+  theta = 0.85, gmeso = NULL, EaV = 82620.87, EdVC = 0,
+  delsC = 645.1013, EaJ = 39676.89, EdVJ = 2e+05, delsJ = 641.3615,
+  GammaStar = NULL, Km = NULL, id = NULL, ...)
 
 \method{plot}{acifit}(x, what = c("data", "model", "none"), xlim = NULL,
   ylim = NULL, whichA = c("Ac", "Aj", "Amin", "Ap"), add = FALSE,
@@ -41,6 +41,8 @@ fitaci(data, varnames = list(ALEAF = "Photo", Tleaf = "Tleaf", Ci = "Ci", PPFD
 
 \item{fitTPU}{Logical (default FALSE). Attempt to fit TPU limitation (fitmethod set to 'bilinear' automatically if used). See Details.}
 
+\item{alphag}{When estimating TPU limitation (with \code{fitTPU}), an additional parameter (see Details).}
+
 \item{useRd}{If Rd provided in data, and useRd=TRUE (default is FALSE), uses measured Rd in fit. Otherwise it is estimatied from the fit to the A-Ci curve.}
 
 \item{PPFD}{Photosynthetic photon flux density ('PAR') (mu mol m-2 s-1)}
@@ -61,6 +63,8 @@ fitaci(data, varnames = list(ALEAF = "Photo", Tleaf = "Tleaf", Ci = "Ci", PPFD
 
 \item{id}{Names of variables (quoted, can be a vector) in the original dataset to be stored in the result. Most useful when using \code{\link{fitacis}}, see there for examples of its use.}
 
+\item{\dots}{Further arguments (ignored at the moment).}
+
 \item{x}{For plot.acifit, an object returned by \code{fitaci}}
 
 \item{what}{The default is to plot both the data and the model fit, or specify 'data' or 'model' to plot one of them, or 'none' for neither (only the plot region is set up)}
@@ -69,7 +73,7 @@ fitaci(data, varnames = list(ALEAF = "Photo", Tleaf = "Tleaf", Ci = "Ci", PPFD
 
 \item{ylim}{Limits for the Y axis, if left blank estimated from data}
 
-\item{whichA}{By default all three photosynthetic rates are plotted (Aj=Jmax-limited (blue), Ac=Vcmax-limited (red), Hyperbolic minimum (black)). Or, specify one or two of them.}
+\item{whichA}{By default all photosynthetic rates are plotted (Aj=Jmax-limited (blue), Ac=Vcmax-limited (red), Hyperbolic minimum (black)), TPU-limited rate (Ap, if estimated in the fit). Or, specify one or two of them.}
 
 \item{add}{If TRUE, adds to the current plot}
 
@@ -86,8 +90,28 @@ fitaci(data, varnames = list(ALEAF = "Photo", Tleaf = "Tleaf", Ci = "Ci", PPFD
 \item{linecols}{Vector of three colours for the lines (limiting rate, Ac, Aj), if one value provided it is used for all three.}
 
 \item{lwd}{Line widths, can be a vector of length 2 (first element for Ac and Aj, second one for the limiting rate).}
+}
+\value{
+A list of class 'acifit', with five components:
+\describe{
+\item{df}{A dataframe with the original data, the fitted photosynthetic rate (Amodel), Jmax and Vcmax-limited gross rates (Aj, Ac)}
+\item{pars}{Contains the parameter estimates and their approximate standard errors}
+\item{nlsfit}{The object returned by \code{\link{nls}}, and contains more detail on the quality of the fit}
+\item{Tcorrect}{whether the temperature correction was applied (logical)}
+\item{Photosyn}{A copy of the \code{\link{Photosyn}} function with the arguments adjusted for the current fit. That is, Vcmax, Jmax and Rd are set to those estimated in the fit, and Tleaf and PPFD are set to the mean value in the dataset. All other parameters that were set in fitaci are also used (e.g. temperature dependency parameters).}
+\item{Ci_transition}{The Ci at which photosynthesis transitions from Vcmax to Jmax limited photosynthesis.}
+\item{Rd_measured}{Logical - was Rd provided as measured input?}
+\item{GammaStar}{The value for GammaStar, either calculated or provided to the fit.}
+\item{Km}{he value for Km, either calculated or provided to the fit.}
+\item{kminput}{Was Km provided as input? (If FALSE, it was calculated from Tleaf)}
+\item{gstarinput}{Was GammaStar provided as input? (If FALSE, it was calculated from Tleaf)}
+\item{fitmethod}{The fitmethod uses, either default or bilinear}
+\item{citransition}{The input citransition (NA if it was not provided as input)}
+\item{gmeso}{The mesophyll conductance used in the fit (NA if it was not set)}
+\item{fitTPU}{Was TPU fit?}
+\item{RMSE}{The Root-mean squared error, calculated as \code{sqrt(sum((Ameas-Amodel)^2))}.}
 
-\item{\dots}{Further arguments (ignored at the moment).}
+}
 }
 \description{
 Fits the Farquhar-Berry-von Caemmerer model of photosynthesis to measurements of photosynthesis and intercellular \eqn{CO_2}{CO2} concentration (Ci). Estimates Jmax, Vcmax, Rd and their standard errors. A simple plotting method is also included, as well as the function \code{\link{fitacis}} which quickly fits multiple A-Ci curves (see its help page). Temperature dependencies of the parameters are taken into account following Medlyn et al. (2002), see \code{\link{Photosyn}} for more details.
@@ -101,7 +125,7 @@ The 'bilinear' method to fit A-Ci curves (set by \code{fitmethod="bilinear"}) li
 When \code{citransition} is set, it splits the data into a Vcmax-limited (where Ci < citransition), and Jmax-limited region (Ci > citransition). Both parameters are then estimated separately for each region (Rd is estimated only for the Vcmax-limited region). \bold{Note} that the actual transition point as shown in the standard plot of the fitted A-Ci curve may be quite different from that provided, since the fitting method simply decides which part of the dataset to use for which limitation, it does not constrain the actual estimated transition point directly. See the example below. If \code{fitmethod="default"}, it applies non-linear regression to both parts of the data, and when fitmethod="bilinear", it uses linear regression on the linearized photosynthesis rate. Results will differ between the two methods (slightly).
 
 \strong{TPU limitation - }
-Optionally, the \code{fitaci} function estimates the triose-phosphate utilization (TPU) rate. The TPU can act as another limitation on photosynthesis, and can be recognized by a 'flattening out' of the A-Ci curve at high Ci. When \code{fitTPU=TRUE}, the fitting method used will always be 'bilinear'. The TPU is estimated by trying out whether the fit improves when the last n points of the curve are TPU-limited (where n=1,2,...). When TPU is estimated, it is possible (though rare) that no points are Jmax-limited (in which case estimated Jmax will be NA). A minimum of two points is always reserved for the estimate of Vcmax and Rd. See examples.
+Optionally, the \code{fitaci} function estimates the triose-phosphate utilization (TPU) rate. The TPU can act as another limitation on photosynthesis, and can be recognized by a 'flattening out' of the A-Ci curve at high Ci. When \code{fitTPU=TRUE}, the fitting method used will always be 'bilinear'. The TPU is estimated by trying out whether the fit improves when the last n points of the curve are TPU-limited (where n=1,2,...). When TPU is estimated, it is possible (though rare) that no points are Jmax-limited (in which case estimated Jmax will be NA). A minimum of two points is always reserved for the estimate of Vcmax and Rd. An additional parameter (\code{alphag}) can be set that affects the behaviour at high Ci (see Ellsworth et al. 2015 for details, and also \code{\link{Photosyn}}). See examples.
 
 \strong{Temperature correction - }
 When \code{Tcorrect=TRUE} (the default), Jmax and Vcmax are re-scaled to 25C, using the temperature response parameters provided (but Rd is always at measurement temperature). When \code{Tcorrect=FALSE}, estimates of all parameters are at measurement temperature. If TPU is fit, it is never corrected for temperature. Important parameters to the fit are GammaStar and Km, both of which are calculated from leaf temperature using standard formulations. Alternatively, they can be provided as known inputs.
@@ -121,6 +145,7 @@ Because fitaci returns the fitted \code{\link{nls}} object, more details on stat
 Note that atmospheric pressure (Patm) is taken into account, assuming the original data are in molar units (Ci in mu mol mol-1, or ppm). During the fit, Ci is converted to mu bar, and Km and Gammastar are recalculated accounting for the effects of Patm on the partial pressure of oxygen. When plotting the fit, though, molar units are shown on the X-axis. Thus, you should get (nearly) the same fitted curve when Patm was set to a value lower than 100kPa, but the fitted Vcmax and Jmax will be higher. This is because at low Patm, photosynthetic capacity has to be higher to achieve the same measured photosynthesis rate.
 }
 \examples{
+\dontrun{
 # Fit an A-Ci curve on a dataframe that contains Ci, Photo and optionally Tleaf and PPFD. 
 # Here, we use the built-in example dataset 'acidata1'.
 f <- fitaci(acidata1)
@@ -182,9 +207,8 @@ f2
 # Fit TPU limitation
 ftpu <- fitaci(acidata1, fitTPU=TRUE, PPFD=1800, Tcorrect=TRUE)
 plot(ftpu)
-
+}
 }
 \references{
 Duursma, R.A., 2015. Plantecophys - An R Package for Analysing and Modelling Leaf Gas Exchange Data. PLoS ONE 10, e0143346. doi:10.1371/journal.pone.0143346
 }
-

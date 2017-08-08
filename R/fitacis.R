@@ -28,9 +28,12 @@
 #' 
 #' @examples
 #' 
+#' # Example data, reduced version to save check time:
+#' manyacidat2 <- droplevels(manyacidat[manyacidat$Curve %in% levels(manyacidat$Curve)[1:10],])
+#' 
 #' # Fit many curves (using an example dataset)
 #' # The bilinear method is much faster, but compare using 'default'!
-#' fits <- fitacis(manyacidat, "Curve", fitmethod="bilinear")
+#' fits <- fitacis(manyacidat2, "Curve", fitmethod="bilinear")
 #' with(coef(fits), plot(Vcmax, Jmax))
 #' 
 #' # The resulting object is a list, with each component an object as returned by fitaci
@@ -52,7 +55,9 @@
 #' 
 #' # And plot the worst-fitting curve:
 #' plot(fits[[which.max(rmses)]])
-#' 
+#'
+#' # Not run to save check time
+#' \dontrun{ 
 #' # It is very straightforward to summarize the coefficients by a factor variable
 #' # that was contained in the original data. In manyacidat, there is a factor variable
 #' # 'treatment'.
@@ -61,7 +66,7 @@
 #' 
 #' # And now use this to plot Vcmax by treatment.
 #' boxplot(Vcmax ~ treatment, data=coef(fits), ylim=c(0,130))
-#' 
+#' }
 #' @export
 #' @importFrom utils setTxtProgressBar
 #' @importFrom utils txtProgressBar
@@ -136,8 +141,9 @@ do_fit_bygroup <- function(d, which=NULL, progressbar, fitmethod, ...){
 }
 
 
-#' @export plot.acifits
-#' @S3method plot acifits
+ 
+#' @method plot acifits
+#' @export
 #' @rdname fitacis
 plot.acifits <- function(x, how=c("manyplots","oneplot"),
                          highlight=NULL, ylim=NULL,xlim=NULL,
@@ -196,6 +202,20 @@ plot.acifits <- function(x, how=c("manyplots","oneplot"),
   }
 }
 
+#'@export
+#'@method print acifits
+print.acifits <- function(x, ...){
+  
+  cat("Result of fitacis.\n\n")
+  p <- coef(x)
+  
+  cat("Fitted", nrow(p), "curves by", attr(x, "groupname"), "grouping variable.")
+  
+  cat("\nRange in estimated Vcmax:", round(min(p$Vcmax, na.rm=TRUE),2), "-", round(max(p$Vcmax),2))
+  cat("\nRange in estimated Jmax:", round(min(p$Jmax, na.rm=TRUE),2), "-", round(max(p$Jmax),2))
+  cat("\nUse coef() on the object to see all fitted coefficients.")
+  
+}
 
 
 

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Remko Duursma" />
+
+<meta name="date" content="2017-08-08" />
+
+<title>Introduction to fitaci</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to fitaci</h1>
+<h4 class="author"><em>Remko Duursma</em></h4>
+<h4 class="date"><em>2017-08-08</em></h4>
+
+
+
+<p>This vignette explains how to fit A-Ci curves with the <code>plantecophys</code> package in R. It is written to be usable for beginners in R.</p>
+<p>After installing the package from CRAN with <code>install.packages(&quot;plantecophys&quot;)</code>, load the package the usual way:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(plantecophys)</code></pre></div>
+<div id="preparing-the-data" class="section level2">
+<h2>Preparing the data</h2>
+<p>In the examples below I will use two built-in datasets in the <code>plantecophys</code> package. The <code>acidata1</code> dataset looks like this:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Ci</th>
+<th align="right">Photo</th>
+<th align="right">Tleaf</th>
+<th align="right">PARi</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">72.81690</td>
+<td align="right">-0.6656991</td>
+<td align="right">33.36515</td>
+<td align="right">1800</td>
+</tr>
+<tr class="even">
+<td align="right">89.33801</td>
+<td align="right">0.6089389</td>
+<td align="right">33.34065</td>
+<td align="right">1800</td>
+</tr>
+<tr class="odd">
+<td align="right">119.73218</td>
+<td align="right">2.4030110</td>
+<td align="right">33.31123</td>
+<td align="right">1800</td>
+</tr>
+<tr class="even">
+<td align="right">163.84422</td>
+<td align="right">5.5908708</td>
+<td align="right">33.29358</td>
+<td align="right">1800</td>
+</tr>
+<tr class="odd">
+<td align="right">219.61709</td>
+<td align="right">9.2532753</td>
+<td align="right">33.29326</td>
+<td align="right">1800</td>
+</tr>
+<tr class="even">
+<td align="right">259.24215</td>
+<td align="right">12.0213403</td>
+<td align="right">33.27833</td>
+<td align="right">1800</td>
+</tr>
+<tr class="odd">
+<td align="right">416.48659</td>
+<td align="right">19.3715508</td>
+<td align="right">33.32764</td>
+<td align="right">1800</td>
+</tr>
+<tr class="even">
+<td align="right">861.70294</td>
+<td align="right">24.0843514</td>
+<td align="right">33.35583</td>
+<td align="right">1800</td>
+</tr>
+<tr class="odd">
+<td align="right">1105.20222</td>
+<td align="right">24.7927750</td>
+<td align="right">33.42005</td>
+<td align="right">1800</td>
+</tr>
+<tr class="even">
+<td align="right">1356.10582</td>
+<td align="right">25.3376665</td>
+<td align="right">33.55434</td>
+<td align="right">1800</td>
+</tr>
+</tbody>
+</table>
+<p>The easiest approach is to make your dataset look like that, including those column names. If you want to use different column names, see an example further below.</p>
+<p>Read your data into a dataframe in R, possibly using <code>read.csv</code> (comma-separated values):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mydata &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;myfile.csv&quot;</span>)</code></pre></div>
+</div>
+<div id="fitting-a-ci-curves" class="section level2">
+<h2>Fitting A-Ci curves</h2>
+<p>If you have the default column names, fitting an A-Ci curve is as easy as this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1)</code></pre></div>
+<p>The results are stored in the object <code>fit</code>, which can be inspected via:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit</code></pre></div>
+<pre><code>## Result of fitaci.
+## 
+## Data and predictions:
+##            Ci      Ameas     Amodel         Ac        Aj   Ap       Rd VPD
+## 1    72.81690 -0.6656991 -0.7314467  0.6051439  1.233113 1000 1.336532 1.5
+## 2    89.33801  0.6089389  0.5060336  1.8427690  3.513935 1000 1.336532 1.5
+## 3   119.73218  2.4030110  2.7087378  4.0458398  6.918011 1000 1.336532 1.5
+## 4   163.84422  5.5908708  5.7507507  7.0887148 10.595421 1000 1.336532 1.5
+## 5   219.61709  9.2532753  9.3634029 10.7035077 13.904585 1000 1.336532 1.5
+## 6   259.24215 12.0213403 11.7820611 13.1252964 15.686054 1000 1.336532 1.5
+## 7   416.48659 19.3715508 18.8005066 21.7607069 20.162013 3000 1.336532 1.5
+## 8   861.70294 24.0843514 23.8113156 39.8882089 25.152138 3000 1.336532 1.5
+## 9  1105.20222 24.7927750 25.0045538 47.2964666 26.344397 3000 1.336532 1.5
+## 10 1356.10582 25.3376665 25.8021657 53.9109491 27.141449 3000 1.336532 1.5
+##       Tleaf         Cc PPFD Patm Ci_original
+## 1  33.36515   72.81616 1800  100    72.81690
+## 2  33.34065   89.33852 1800  100    89.33801
+## 3  33.31123  119.73489 1800  100   119.73218
+## 4  33.29358  163.84998 1800  100   163.84422
+## 5  33.29326  219.62646 1800  100   219.61709
+## 6  33.27833  259.25394 1800  100   259.24215
+## 7  33.32764  416.50541 1800  100   416.48659
+## 8  33.35583  861.72678 1800  100   861.70294
+## 9  33.42005 1105.22725 1800  100  1105.20222
+## 10 33.55434 1356.13165 1800  100  1356.10582
+## 
+## Root mean squared error:  0.9298254 
+## 
+## Estimated parameters:
+##         Estimate Std. Error
+## Vcmax  46.846621  1.4748351
+## Jmax  105.239159  1.3586481
+## Rd      1.336532  0.2413794
+## Note: Vcmax, Jmax are at 25C, Rd is at measurement T.
+## 
+## Curve was fit using method:  default 
+## 
+## Parameter settings:
+## Patm = 100
+##  alpha = 0.24
+##  theta = 0.85
+##  EaV = 82620.87
+##  EdVC = 0
+##  delsC = 645.1013
+##  EaJ = 39676.89
+##  EdVJ = 2e+05
+##  delsJ = 641.3615
+## 
+## Estimated from Tleaf (shown at mean Tleaf):
+## GammaStar =  64.80184 
+## Km =  1460.068</code></pre>
+<p>The coefficients can be extracted,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">coef</span>(fit)</code></pre></div>
+<pre><code>##      Vcmax       Jmax         Rd 
+##  46.846621 105.239159   1.336532</code></pre>
+<p>And a standard plot can be made:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(fit)</code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAHgCAMAAABNUi8GAAAAjVBMVEUAAAAAADoAAGYAAP8AOjoAOpAAZmYAZrY6AAA6ADo6AGY6OpA6ZmY6ZrY6kNtmAABmADpmAGZmZmZmtrZmtv+QOgCQZgCQZpCQkGaQkLaQtpCQ27aQ2/+2ZgC2Zjq2tma225C2/7a2///T09PbkDrbkGbb/7bb////AAD/tmb/tpD/25D//7b//9v///8XXWe9AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAVXklEQVR4nO2dC3vjuHVA5XFcK2kibVI7SVMrbTdsPKwe///nhSRIinpQInEvwQvwnG9nViNTFxB0jJdAYHUCMMxq7gwAPAJBwTQICqZBUDANgoJpEBRMg6BgGgQF0yAomAZBwTQICqZBUDANgoJpEBRMg6BgGgQF0yAomAZBwTQICqZBUDANgoJpEBRMg6BgGgQF0yAomAZBwTQICqZBUDANgoJpEBRMg6BgGgQF0yAomAZBwTQICqZBUDANgoJpJhd0tTR+zp2BWBjoz7R6Lq+K/jl3BmIBQWcBP4eCoHOAn4NB0DlA0MEg6Azg53AQNDz4OQIEDQ+CjgBBg4OfY0DQ0ODnKBA0MPg5DgQNC36OBEHDgqAjQdCg4OdYEDQk+DkaBA0Ifo4HQQOCoONB0HDgpwcIGgz89AFBQ4GfXiBoKBDUCwQNBH76gaBhwE9PEDQI+OkLgoYAP71B0BAgqDcIGgD89AdBpwc/BSDo5OCnBASdHASVgKBTg58iEHRi8FMGgk4MgspA0GnBTyEIOin4KQVBJwVBB/Bwu28EnRL8vM+I/ehDCHrYboq/8yIDP36dJAGr4OcFXuckBBM0e/suH31MkYBR8LNisJJ3nw8laK1mpal6AkZZtKDjT5S5f0koQffrStC8r5FPUNBF+ik46ej+xdSgU7EoP721vAlx8/TAV49NrsthW6b8fmqGS+oJWGQJfvpXl/3Bbp4e+GrvdB2Foy9fxUB+M1UC1kjZT1Uvr8LePjvwxQoZmDeBwKQn6ERaXqZw58mBr9XNSht2qvc6N4n5OamXT5JWvayPrHhXbpC0jFF8Gn7eapmqoFnR/zxsy1HSMgSN38+etjxRQY+fm+rvt28Etc2zpjxRQZsvOHdv34sQNEo/h3Uzww8XwtWgBbt3BDXG2OFP8OFsmD5oreVh27ueKSFBY/FzxqH5CEKN4l0jf/xE0CA8Ec6+ly1M1GtjxM+7k95R1JmXIKgyZvy8FDBGNysQVBmDgsboZQuC6mLBz46gUbtZgaCqmPAz4gb9FgTVxJ6fc2dFDIJqYkDQhNysQFBF5vMzoTb9CgTVYyY/05WzBEHVmMHPZLU8g6BaBPczfTlLEFSLsIK+LsDNCgRVIqSfS6g5GxBUh1B+LqDXeQmCqhDCz3RH6o9AUBUmFnSZblYgqAZT+rlcNysQVIGp/Fy4mxUIKmcaP5GzAkHlTCEobtYgqBh1P6k5OyCoFFU/6XVeg6BS9ARFzjsgqBA1P3HzLggqRENQas5+EFSGgp/o+QgElSEWFDcfg6AiRH5SdQ4AQSUI/GTIPgwEleAtKG4OBUEF+PqJncNBUH88/UTPMSCoNx5+0u8cDYJ6M1ZQhkU+IKgvI/3ETT8Q1JNRfmKnNwjqyQhB0VMAgvox3E/sFIGgXgz2Ez2FIKgPA/2kbZcTRtDjp/us+o7xSlJQ9NQgiKDZauMe5M0D5QQCM8BP7FQihKDtYbKFqm/fEyQQmOd+oqcaIQRtjuMuyFM4q/OZoNipCDXoaJ74iZ6qBOqD1lVoEn3Qh4KipzJhRvGHreuV9dWfMQn61M9QGVkGzIOO5YGg6KnPvIKed3qJ5oPt9TOutxENIkHr+ff+hrshK66quqFZ9KP4HkHRcyIEgjYdy4ffEFVkL1/F1e+nBAS97yd2Toa/oPmq0M5RqPpxe0GLm2Y6fhY1bZqCoud0eAuaXzbsu03/i5uJ+t3bd+yCln5e24ieU+Ir6P4PV0/839f1JS3tRP3uPXJBaz+7QtK6T4unoMe/XA+Mbp8502hZdAWiFrT1s1USPacmzDRT81XS8TMpQdFzepioH041QOoIip4BQNDB1AP4xk/0DIKHoO3855PZzynyMSfNDFMlJq17IHxq0M7yudD5mJGLGVD0DIVXE3/4pX9Oadp8zEfXT/QMB33QgXQExc+AIOgwzn6iZ1C8Bf1/3Vbe+mfeCoqfYUHQQXRG8MZzmhoIOgT8nA0EHYITFD1nAEEHgJ/zgaDPab+DnzsjS4Rppqfg55zIBN29fZ92q9V7sHzMwb1V9BAKkaDZ6u07L+uWTah8zEDh5yt+zoZE0PI2uOPny1d1O1yYfITnZ6Wn2ewlj0TQw3Zz2q8f3aupno/w/MTPWZEJ+l7dzHHYpluD/qR5nxdRH3RXrVrOE+6Dsi55bqRb37x8Fa38Jlg+ArP6xz/wc16YB31A4Wdh6Ny5WDYI+gAEnR8E7eX1tWri587GwkHQPl75ftMCCNpD4ecJPecHQe+Dn0ZA0Hu8Oj9tZWqZ+Ai6X1d71x7+mOrOIqWe+GkDD0GPnx/V5iLJClr5SQNvA5+9mSoxd++pCoqflvCsQQuy3/wuSUEbP+3kaNH49EHLZXanByd2TJiP6XF+UoFagVH8JfhpDAS9oPXTSH6A24671H5SgdoBQTvgpz0Q9EzjJ4IaAkFb8NMiCNrQ8XP+zEBDCEHdvGn+8FyQ2Z1o/aQCNUWIaaZK0Ky8Nbk5VlY5AQXw0ygiQQeemFQKWquZ9d1BP7MVZz8R1BayrW9WgwXdrytBc5tndeKnWWQ7iwzbUcR8DdrxE0GNIatBN4Ne7HoC76d2mYl/PiYBPw0j6oPmL0OH8oWjxbV5/x45CAp3kY3id2rHys7oBX5aJsQg6UHYM34BFOj6iaDmCDFIUsyHPvhpmxCDJMV8qHPlJ4JaQ9QH3f920CCpnc9/0BmYyYwLP6lADSJr4gf2QY+fTzup86iBn+YJImhh6LOTamZx49JPBLVIoHuS8lXfKhGlBHzAzwhY8E1zN34iqEGWK+iVn1SgNkHQJgP4aZLFCkoDHwdLFZQGPhIWKih+xoK3oN2vh6JbzXTtJ4KaZZGC4mc8LLKJv23gEdQqSxSUCjQiZIK6Jcsaq0IDKoKfMSFbbrd2XdDBtyaJ86HAjZ8IahmRoDt3E1y2erZWSS0fClCBRoVsud3GPVDYrT6YJFSgcYGg+GmapTXxVKCRsbRBEhVoZGhMM8nrz2CCUoHGxrIm6vEzOhA0SMLgi0jQgRvYKuZDBn7Gx7x7M43Oh4hbPxHUPAvamwk/Y2RBezPduQsJQc0j6oMO38BWKx8Cbv1kGWgEyEbxEW1ge9dPBDXPYgZJCBonSxkk3bnLA0FjYCGDpHszoPgZA7LFIsM2sFXMhy93p5jwMwLC7A+qlg9PmAKNFgQF02gsFtFo6SfVBT/jRWU1Uy4fzU/pCx3QiFmsoBOmB4rIBG16oZtQ+fABP2NGowY9/kU+X4+gcBedJt7yXZ34GTUqgh7+aHiaCUGjRkXQzPAgCT/jRmeQJL/1GEHhLlp3deYPv01qFub1XzOVM/gZOUFuO86aeai8d0IqnKDM0UeFp6DH/7y+4sFcU2dZXm9vdSJpqEBjx7cGzTdXT/y9//v4w7Y9STYPfF48gsaOdxOfXQyLjp8PTjOerwbFz+jx74Pm503t8tXj07az5seh+6AIGj2CQVLnpKRn60GbS/vnSyfRBj/jRzSKr2ePzJ7ygaDxM+/udp3D6iaIjp8JkPD2i3f8RNDoWJag+BkdIQTtnjsbbh6UCjQJgtSgx8+nt30GERQ/4yNME3/8fLbaSV2d+3uJaKcCUxOoD5o/nskPISh73URJqoOk+35iaHQgKJgmUUF7drND0OhYjKD0QeMkTUHxMxk0BM0VdrgLIKhqChAIBUE7C+Ynz8cw8DMdNASVb9uAoNCDRhO/2wTLxyDwMyFUmnhjfVAETYgER/H4mRIICqZJT1D8TIolCMoMfcQoCLpfmzqG5p6gasEhNBq3HZs6J4kWPi28BT3faKTwPdKkguJnzAgEdWI+XSuvmo/nIGhaeAtaNu+bkzlB8TMxhHszbRAUJkU0SCrG76s/IShMiHCaKTc2SMLP1BDPg+Yak0wICj0oTNRnhuZB79zMqRMYZkLlq86dFUGpQJMjre/iqUCTA0HBNEkJip/pgaBgmpQExc8EQVAwTcqC4mcCJCTorZ8IGj9JCyqPCXOTrqD4mQTpCEoFmiTJCoqfaZCMoFSgaZKqoPiZCAgKpklF0Bs/ETQN0hSUExOSIUlBORMpHRIR9E4FiqBJgKBgmjQEvR0i4WcihBD0sN2c3B4P/Xd/agpauImfqRBM0Ozt+9GZX8qCQiqEErRWs9JUPQH8TJdQgu7XlaD5ZSO/OiNJAEEVWBllYO4lbz1sDYqffhgttjCClr8J76dmuKSdwPUkvSDUgjFabIGmmQpHX76KgfxmigSoQDUwWm4pzIMiqAZGyy0BQfFTBaMFh6DgMFpwiQmKn94YLTkEBYfRkotfUFp4HYyWXFqC4qc/RosOQcFhtOiSEhQ/BRgtu+gFpQJVQlh2+/XLl05GLklJUPyUICy83b/1rvUVgaDgkBVe/vJf241KPq5ISFD8FCEqvePne/GfVla6xC4oFagWotLLiw7orm+tr4h0BMVPGZLiq2rPTONQ4RsQFBxXxffzEdevLStQ99fU2RJe5o9YUPwUIig/1/2sbztTJnJBqUDVEJRfVt/ftlHLzJlUBMVPKf4FeNhW4/d6GL9fP9ifYzwICg7/Aszqzmc1jD/88nXKFCecEBQc3gW4X9c+VsP4/b/rTjbFLSh+6qFUggjapRGUm+HlKJVg2cTnilP2SQg6YosU6EOrABkknen6iaFCjJYfgoLDaPkhKDiMll86gmrmZomwol49gc4YHj/FsKJePYG2AlXNyVJhRb16AgiqCSvq1RNAUE1YUa+dAH6qwop67QQQVBVJMbKi/h5OUPxU4qocXx9x9dLuinoWizRQgerCinrlBBBUF6UV9dSgDbTwuiitqEfQBgTVhRX1ugngpzKsqNdNAEGVQVDdBBBUGQTVTeCVRUy6IKhqAq+sAlVGpyjzlfKSkWgFZRm9MkaLEkHBYbQoERQcRosyUkFfudFDG0FZNitBD9d3fVRP5B+3P+ghv70sXkHZTkQXBUHvMlTOnkvDCHr8dA1y/5JWL0FlmYILlixo1izEyntXZPk08YIcwQ1KTfx+/R/b1WqzX69WVdNePnj757Z8XP6gNHC3Wr381S0wOfzy17LWKp5ZlS8tLv2uFu9txmZLeEdVm17W97s2LgEqUH3UBC3Uy0rrsh+/Hrau/+n+lD8o710qfpavakG35Ut3725JVFWDlg/2683IbIlk6NTc+WUjv+rglBv2p5qmH3E9f57/uf6IVw+4uvRS0M2p+evjUlD3nFt4v2sE3bgN8ar1+O1lHU+irUGpQJW5Ks9Hfj4W9OPU/nUp6Ed1hXMvbwSt66687hHUPzgfyBCoD9pmY6OUAH5qo9bEPxE0uxW06HX++J+6Bs3r34GgghYpu1T7R3sIOjehBL2tQduXnGvQ0dmaXIeRCeCnOqEEda131hG0UjZfdS4bny1bgvId0gRMJ+jmQtCrUXxbea42boBUqbtr69EYBeVLzimQCFrfdXxX0OKn9TxoLWh5+Y//dsP0tg/68lU6uWvmQc+TPREKyjKRSQhboPnQfXIQFByhCrSqXd1s5xAQFBzBCjTvziI9JUJB6YNOgtESjVFQFtpNgdEijVJQmACjnwCCgsPoJ4Cg4DD6CSAoOIx+AggKDqOfAIKCw+gngKDgMPoJICg4jH4CZgQFuMtAf6bVc+I01SKlnKW43xuC6gYymKW43xuC6gYymKW43xuC6gYymKW43xuC6gYymKW43xuC6gYymKW43xuC6gYymKW43xuC6gYymKW43xuC6gYymKW43xuC6gYymKW435vRL2oBHAgKpkFQMA2CgmkQFEyDoGAaBAXTICiYBkHBNAgKpkFQMA2CgmkQFEwTXNB8tbo60Wkc1QHgm4tI/iHdMSviQOVpvu8aWSrPwfiQB9r/7tf7QUZHc5EUyrzO0ml0mYcWtDxv7PrMsTEcP6szd987kfxD5tUJeeJAeRHlsFXIUnmSUHnulTDQYdue+XYZZHQ0F0mhzOssncaXeWBB3fGzu3fvAPVxZj9+bSP5hzxsy8ISB3KvU8jS8fP96vVegXJ3GtFtkNHR6kjyMs/bA5JGl3lgQdv3KgtT/M61kfxDZm9/LgpLHGj/27oCkEZqBRUFyleb/EIr72hNpPpf/mXeCTS6zEMLWn2Ygw976mNXvLUmknfI4oVlf0gcKP/xv9uqiyaO1DTx0kBO0JsgHtE6F8vKvL52fJkHFtR1NySd0CpKoUMbyTdk2bqUhSUOlJXNV1n7iSM1IwZpIHeI600Qj2hndYRl7gJ5lHmMguZNf13mVVFQOoK+1LWAOFJ5Gut+Lf/lm0BQaZm7QB5lHmETn1czHtJmsHqZShPvelBFb0qcpbZnZq6JF5f5OUu2m3iFQVLmZuSkI5Ks3qXyQzxIcsVbFLU0UludiAPpDJJOrTryMq8C+ZR5bNNMxZv8uIwkCbnTmGZyJ0/n8mkm92kpBMqVppnallle5udKcmSZxzZRX3bRriIJQu5UJuqzpsilkZo+qDRQrjVR39TFm+af3pEuBbU7UV+fcS96eUkZoo3kH9J97SYOlDffBEoj7XQCtQ3zdZDR0bots6jMrwQdHojFImAaBAXTICiYBkHBNAgKpkFQMA2CgmkQFEyDoGAaBAXTICiYBkHBNAgKpkFQMA2CgmkQFEyDoGAaBAXTICiYBkHDsP/D82v+LttvJU0QNAhZdafYE9w9uHABgupR7mO7umtithkWYeh1CwJBtai2IV7dvYl28B4xbg8I6ICgWuycmtltHer2/RwWRLoxZXIgqBJ5I2Z2U4VWu3oXteOm3l3x/Gi/Lh9typ0f3KvzFVXoJQiqw/Gzv+7bVcoetr9fux7A+dF+XT56+Vv5z6qW3a8F21YlCYLqcN6/6Ib6AIHDtnSwPIvg/KgYVn2cqjp0v66q0PNhA+BAUB0etM2toJWCRS/z/KiqMKt/Hj9rQYWbTycHgurwYIe2/boWtGq9iy7q+VFV77p/7hD0Lgiqw2UNej626tSpQRHUAwTVoR3duM2yu1w08eVg6vzojqD0QS9BUB2On26iaFf976IGbUfxpbr1IGnTDJI2l4Iyir8GQZUorKtwnl0I2syD/qacTSpqyPOjG0GZB70GQdXYrZqjYK8Edd8kFR7W8/HnRzeCis/gSw4EnYJLQd138fXQ6NR9dA3fxd+AoFNwJegpex8maEYP9BoEnYJrQct1dAMEzfHzBgSdghtBi7rxuaCS46OSBUHBNAgKpkFQMA2CgmkQFEyDoGAaBAXTICiYBkHBNAgKpkFQMA2CgmkQFEyDoGAaBAXTICiYBkHBNAgKpkFQMA2CgmkQFEyDoGAaBAXT/Atorv6NrCwDfQAAAABJRU5ErkJggg==" /><!-- --></p>
+</div>
+<div id="temperature-corrections" class="section level2">
+<h2>Temperature corrections</h2>
+<p>The <code>fitaci</code> function corrects the estimates of Vcmax and Jmax to a common temperature (25C) by default, but you may want to change this behaviour if you are interested in actual rates at the temperature measured (not corrected for temperature).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit2 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1, <span class="dt">Tcorrect=</span><span class="ot">FALSE</span>)</code></pre></div>
+<p><strong>Note</strong> that the correction to a common temperature depends on a number of parameters, the default values in <code>fitaci</code> are not necessarily right for your application!</p>
+</div>
+<div id="using-measured-dark-respiration" class="section level2">
+<h2>Using measured dark respiration</h2>
+<p>The <code>fitaci</code> function also estimates dark respiration (Rd) in the fit, but be aware that those estimates are very imprecise. Also, a higher precision of Vcmax and Jmax can be obtained if you measure Rd independently, and use that value in the fit. To do this, add Rd to the dataframe (default column name is ‘Rd’), and set the <code>useRd=TRUE</code> argument, like so:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">acidata2<span class="op">$</span>Rd &lt;-<span class="st"> </span><span class="dv">2</span>
+fit3 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata2, <span class="dt">useRd=</span><span class="ot">TRUE</span>)
+<span class="kw">coef</span>(fit3)</code></pre></div>
+<pre><code>##     Vcmax      Jmax        Rd 
+##  50.09774 108.26249   2.00000</code></pre>
+</div>
+<div id="using-different-columns" class="section level2">
+<h2>Using different columns</h2>
+<p>When your column names differ from the defaults, you have to specify all column names. It may also be useful to use a different column in some instance, for example air instead of leaf temperature (perhaps the thermocouple was broken):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit4 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1, <span class="dt">varnames=</span><span class="kw">c</span>(<span class="dt">ALEAF=</span><span class="st">&quot;Photo&quot;</span>, <span class="dt">Tleaf=</span><span class="st">&quot;Tair&quot;</span>, <span class="dt">Ci=</span><span class="st">&quot;Ci&quot;</span>, <span class="dt">PPFD=</span><span class="st">&quot;PARi&quot;</span>))</code></pre></div>
+<p><strong>Note</strong> that the right-hand side of each pair is the name of the variable in your dataframe.</p>
+</div>
+<div id="missing-leaf-temperature-andor-par" class="section level2">
+<h2>Missing leaf temperature and/or PAR</h2>
+<p>If leaf temperature is not available in the dataset, a default value of 25C is assumed, or you can pass it as an argument (see below). Likewise, for PAR (which is used to express Jmax at ‘infinite’ light availability), a value of 1800 is assumed.</p>
+<p>To use different values, set <code>Tleaf</code> and <code>PPFD</code> (PAR) directly:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit5 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1, <span class="dt">Tleaf=</span><span class="dv">30</span>, <span class="dt">PPFD=</span><span class="dv">2000</span>)</code></pre></div>
+<p>You can also set <code>GammaStar</code>, <code>Km</code> directly.</p>
+</div>
+<div id="using-mesophyll-conductance" class="section level2">
+<h2>Using mesophyll conductance</h2>
+<p>It is not possible to estimate mesophyll conductance (gmeso) from A-Ci curves (contrary to what some people have claimed in the literature), but it is possible to include gmeso to arrive at chloroplastic rates of Vcmax and Jmax. This is easily done via,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit6 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1, <span class="dt">gmeso=</span><span class="fl">0.2</span>)</code></pre></div>
+<p><strong>Note:</strong> However note a section in the FAQ Vignette that is included in this package on another approach to account for gmeso.</p>
+</div>
+<div id="fitting-tpu-limitation" class="section level2">
+<h2>Fitting TPU limitation</h2>
+<p>A fairly recent addition to the package (not described in Duursma, 2015) is the estimation of triose phosphate utilization (TPU) limitation. This rate can be estimated like this,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit7 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1, <span class="dt">fitTPU=</span><span class="ot">TRUE</span>)
+<span class="kw">plot</span>(fit7)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p><strong>Note:</strong> the horizontal line (Ap) is the TPU-limited rate of photosynthesis.</p>
+<p>The TPU rate can be extracted via:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">coef</span>(fit7)</code></pre></div>
+<pre><code>##      Vcmax       Jmax         Rd        TPU 
+##  46.765693 107.485590   1.395788   8.820336</code></pre>
+<p><strong>Note:</strong> In many cases this rate cannot be estimated, i.e. when the limitation is not clearly affecting photosynthesis. In that case the estimated coefficient will be NA.</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
