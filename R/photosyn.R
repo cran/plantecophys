@@ -1,51 +1,89 @@
 #' @title Coupled leaf gas exchange model
-#' @description A coupled photosynthesis - stomatal conductance model, based on the Farquhar model of photosynthesis, and a Ball-Berry type model of stomatatal conductance. Includes options for temperature sensitivity of photosynthetic parameters, day respiration (optionally calculated from leaf temperature), and mesophyll conductance. 
+#' @description A coupled photosynthesis - stomatal conductance model, based on the 
+#' Farquhar model of photosynthesis, and a Ball-Berry type model of stomatal conductance. 
+#' Includes options for temperature sensitivity of photosynthetic parameters, day respiration 
+#' (optionally calculated from leaf temperature), and mesophyll conductance. 
 #' @param VPD Vapour pressure deficit (kPa) (not needed when RH provided)
 #' @param Ca Atmospheric CO2 concentration (ppm)
 #' @param PPFD Photosynthetic photon flux density ('PAR') (mu mol m-2 s-1)
 #' @param Tleaf Leaf temperature (degrees C)
 #' @param Patm Atmospheric pressure (kPa) (but see warning below!)
 #' @param RH Relative humidity (in \%) (not needed when VPD provided)
-#' @param gsmodel One of BBOpti (Medlyn et al. 2011), BBLeuning (Leuning 1995), BallBerry (Ball et al. 1987), or BBdefine (for full control; see Details).
+#' @param gsmodel One of BBOpti (Medlyn et al. 2011), BBLeuning (Leuning 1995), 
+#' BallBerry (Ball et al. 1987), or BBdefine (for full control; see Details).
 #' @param g0,g1 Parameters of Ball-Berry type stomatal conductance models.
 #' @param gk Optional, exponent of VPD in gs model (Duursma et al. 2013)
 #' @param vpdmin Below vpdmin, VPD=vpdmin, to avoid very high gs.
 #' @param D0 Parameter for the BBLeuning stomatal conductance model.
-#' @param GS Optionally, stomatal conductance (to H2O). If provided, \code{Photosyn} calculates Ci and photosynthesis. See Details.
+#' @param GS Optionally, stomatal conductance (to H2O). If provided, \code{Photosyn} 
+#' calculates Ci and photosynthesis. See Details.
 #' @param BBmult Optional, only used when \code{gsmodel = "BBdefine"}, see Details.
 #' @param alpha Quantum yield of electron transport (mol mol-1)
 #' @param theta Shape of light response curve.
 #' @param Jmax Maximum rate of electron transport at 25 degrees C (mu mol m-2 s-1)
 #' @param Vcmax Maximum carboxylation rate at 25 degrees C (mu mol m-2 s-1)
-#' @param gmeso Mesophyll conductance (mol m-2 s-1). If not NULL (the default), Vcmax and Jmax are chloroplastic rates.
+#' @param gmeso Mesophyll conductance (mol m-2 s-1). If not NULL (the default), Vcmax and 
+#' Jmax are chloroplastic rates.
 #' @param TPU Triose-phosphate utilization rate (mu mol m-2 s-1); optional.
-#' @param alphag Fraction of glycolate not returned to the chloroplast; parameter in TPU-limited photosynthesis (optional, only to be used when TPU is provided) (0 - 1)
-#' @param Rd Day respiration rate (mu mol m-2 s-1), optional (if not provided, calculated from Tleaf, Rd0, Q10 and TrefR)
-#' @param Rd0 Day respiration rate at reference temperature (\code{TrefR})
+#' @param alphag Fraction of glycolate not returned to the chloroplast; parameter in 
+#' TPU-limited photosynthesis (optional, only to be used when TPU is provided) (0 - 1)
+#' @param Rd Day respiration rate (mu mol m-2 s-1), optional (if not provided, calculated 
+#' from Tleaf, Rd0, Q10 and TrefR). Must be a positive value (an error occurs when a 
+#' negative value is supplied).
+#' @param Rd0 Day respiration rate at reference temperature (\code{TrefR}). Must be a positive value.
 #' @param Q10 Temperature sensitivity of Rd.
 #' @param TrefR Reference temperature for Rd (Celcius).
 #' @param Rdayfrac Ratio of Rd in the light vs. in the dark.
 #' @param EaV,EdVC,delsC Vcmax temperature response parameters
 #' @param EaJ,EdVJ,delsJ Jmax temperature response parameters
-#' @param Km,GammaStar Optionally, provide Michaelis-Menten coefficient for Farquhar model, and Gammastar. If not provided, they are calculated with a built-in function of leaf temperature.
-#' @param Ci Optional, intercellular CO2 concentration (ppm). If not provided, calculated via gs model.
-#' @param Tcorrect If TRUE, corrects input Vcmax and Jmax for actual Tleaf (if FALSE, assumes the provided Vcmax and Jmax are at the Tleaf provided)
-#' @param returnParsOnly If TRUE, returns calculated Vcmax,Jmax,Km and GammaStar based on leaf temperature.
+#' @param Km,GammaStar Optionally, provide Michaelis-Menten coefficient for Farquhar 
+#' model, and Gammastar. If not provided, they are calculated with a built-in function 
+#' of leaf temperature.
+#' @param Ci Optional, intercellular CO2 concentration (ppm). If not provided, 
+#' calculated via gs model.
+#' @param Tcorrect If TRUE, corrects input Vcmax and Jmax for actual Tleaf (if FALSE, 
+#' assumes the provided Vcmax and Jmax are at the Tleaf provided)
+#' @param returnParsOnly If TRUE, returns calculated Vcmax,Jmax,Km and GammaStar based on 
+#' leaf temperature.
 #' @param whichA Which assimilation rate does gs respond to? 
 #' @param \dots Further arguments passed to \code{Photosyn}
 #' @seealso \code{\link{FARAO}}, \code{\link{fitaci}}, \code{\link{AciC4}}
-#' @details The coupled photosynthesis - stomatal conductance model finds the intersection between the supply of CO2 by diffusion, and the demand for CO2 by photosynthesis. See Farquhar and Sharkey (1982) for basic description of this type of model, Duursma (2015) for more details on the implementation in the \code{plantecophys} package, and Duursma et al. (2014) for an example application (that uses this implementation).
+#' @details The coupled photosynthesis - stomatal conductance model finds the intersection between 
+#' the supply of CO2 by diffusion, and the demand for CO2 by photosynthesis. See Farquhar and 
+#' Sharkey (1982) for basic description of this type of model, Duursma (2015) for more details 
+#' on the implementation in the \code{plantecophys} package, and Duursma et al. (2014) for an 
+#' example application (that uses this implementation).
 #' 
 #' \strong{Photosynthesis model and temperature response} - 
-#' The model of Farquhar et al. (1980) is used to estimate the dependence of leaf net photosynthesis rate (ALEAF) on intercellular CO2 concentration (Ci), accounting for all three limitations (electron transport, carboxylation, and TPU limitation). The equations for the temperature response of photosynthetic parameters, including Vcmax, Jmax, Gammastar, and Km follow Medlyn et al. (2002). However, \strong{note that the default temperature response parameter values are not taken from Medlyn, and likely will have to be adjusted for your situation}.
+#' The model of Farquhar et al. (1980) is used to estimate the dependence of leaf net 
+#' photosynthesis rate (ALEAF) on intercellular CO2 concentration (Ci), accounting for all 
+#' three limitations (electron transport, carboxylation, and TPU limitation). The equations 
+#' for the temperature response of photosynthetic parameters, including Vcmax, Jmax, 
+#' Gammastar, and Km follow Medlyn et al. (2002). However, \strong{note that the default 
+#' temperature response parameter values are not taken from Medlyn, and likely will have to 
+#' be adjusted for your situation}.
 #' 
-#' #'  By default, the \code{Photosyn} function returns the hyperbolic minimum of Vcmax and Jmax-limited photosynthetic rates, as well as the hyperbolic minimum of Jmax-limited and TPU-limited rates. This approach avoids the discontinuity at the transition between the two rates (thus allowing use of \code{Photosyn} and \code{fitaci} in optimization or fitting routines). The individual rates (Ac, Aj and Ap) are also returned as output should they be needed. Note that those rates are output as gross photosynthetic rates (leaf respiration has to be subtracted to give net leaf photosynthesis).
+#' #'  By default, the \code{Photosyn} function returns the hyperbolic minimum of Vcmax and 
+#' Jmax-limited photosynthetic rates, as well as the hyperbolic minimum of Jmax-limited and 
+#' TPU-limited rates. This approach avoids the discontinuity at the transition between the 
+#' two rates (thus allowing use of \code{Photosyn} and \code{fitaci} in optimization or 
+#' fitting routines). The individual rates (Ac, Aj and Ap) are also returned as output 
+#' should they be needed. Note that those rates are output as gross photosynthetic rates 
+#' (leaf respiration has to be subtracted to give net leaf photosynthesis).
 #' 
 #' \strong{Coupled leaf gas exchange}
-#'  When Ci is not provided, Ci is calculated from the intersection between the 'supply' and 'demand', where 'demand' is given by the Farquhar model of photosynthesis (A=f(Ci)), and supply by the stomatal conductance. The latter is, by default, estimated using the stomatal conductance model of Medlyn et al. (2011), but two other models are provided as well (Ball-Berry and Leuning, see \code{gsmodel} argument). Otherwise, stomatal conductance may be directly provided via the \code{GS} argument. 
+#'  When Ci is not provided, Ci is calculated from the intersection between the 'supply' and 
+#'  'demand', where 'demand' is given by the Farquhar model of photosynthesis (A=f(Ci)), and 
+#'  supply by the stomatal conductance. The latter is, by default, estimated using the 
+#'  stomatal conductance model of Medlyn et al. (2011), but two other models are provided 
+#'  as well (Ball-Berry and Leuning, see \code{gsmodel} argument). Otherwise, stomatal 
+#'  conductance may be directly provided via the \code{GS} argument. 
 #' 
 #'  \strong{Stomatal conductance models} -  
-#'  At the moment, three stomatal conductance models are implemented. The 'BBOpti' model is a slightly more general form of the model of Medlyn et al. 2011 (see Duursma et al. 2013). It is given by (in notation of the parameters and output variables of \code{Photosyn}),
+#'  At the moment, three stomatal conductance models are implemented. The 'BBOpti' model 
+#'  is a slightly more general form of the model of Medlyn et al. 2011 (see Duursma et al. 
+#'  2013). It is given by (in notation of the parameters and output 
+#'  variables of \code{Photosyn}),
 #'  
 #'  \deqn{GS = g0 + 1.6*(1 + g1/D^(1-gk))*ALEAF/CA}
 #'  
@@ -55,64 +93,111 @@
 #'  
 #'  \deqn{GS = g0 + g1*ALEAF/(Ca * (1 + VPD/D0))}
 #'  
-#'  Note that this model also uses the g1 parameter, but it needs to be set to a much higher value to be comparable in magnitude to the BBOpti model.
+#'  Note that this model also uses the g1 parameter, but it needs to be set to 
+#'  a much higher value to be comparable in magnitude to the BBOpti model.
 #'  
 #'  The 'BallBerry' model is that of Ball et al. (1987). It is given by,
 #'  
 #'  \deqn{GS = g0 + g1*RH*ALEAF/Ca}
 #'  
-#'  Where RH is relative humidity. Again, the g1 value is not comparable to that used in the previous two models.
+#'  Where RH is relative humidity. Again, the g1 value is not comparable to that 
+#'  used in the previous two models.
 #'  
-#'  Finally, \code{Photosyn} provides a very flexible Ball-Berry model, where the multiplier has to be specified by the user, the model is:
+#'  Finally, \code{Photosyn} provides a very flexible Ball-Berry model, where 
+#'  the multiplier has to be specified by the user, the model is:
 #'  
 #'  \deqn{GS = g0 + BBmult*ALEAF}
 #'  
-#'  This interface can be used to quickly simulate what happens if stomata do not respond to humidity at all (in which case BBmult=g1/Ca, or ca. 5/400), or to use the Tuzet model of stomatal conductance inside another model that provides the leaf water potential function.
+#'  This interface can be used to quickly simulate what happens if stomata do 
+#'  not respond to humidity at all (in which case BBmult=g1/Ca, or ca. 5/400), or 
+#'  to use the Tuzet model of stomatal conductance inside another model that provides 
+#'  the leaf water potential function.
 #'  
-#'  For the full numerical solution to the Cowan-Farquhar optimization, use the \code{\link{FARAO}} function (which was used in Medlyn et al. 2011 for comparison to the approximation there presented). See Duursma (2015) for more details.
+#'  For the full numerical solution to the Cowan-Farquhar optimization, use 
+#'  the \code{\link{FARAO}} function (which was used in Medlyn et al. 2011 for 
+#'  comparison to the approximation there presented). See Duursma (2015) for more details.
 #'  
 #'  \strong{Mesophyll conductance} - 
 #'  
-#'  If the mesophyll conductance \code{gmeso} is provided as an input, it is assumed that Vcmax and Jmax are the chloroplastic rates, and leaf photosynthesis is calculated following the equations from Ethier and Livingston (2004). When very low mesophyll conductance rates are input, the model may return poor solutions (and sometimes they may not exist).
+#'  If the mesophyll conductance \code{gmeso} is provided as an input, it is assumed 
+#'  that Vcmax and Jmax are the chloroplastic rates, and leaf photosynthesis is 
+#'  calculated following the equations from Ethier and Livingston (2004). When very 
+#'  low mesophyll conductance rates are input, the model may return poor solutions 
+#'  (and sometimes they may not exist).
 #'  
 #'  \strong{Simulating A-Ci curves}
 #'  
-#'  If Ci is provided as an input, this function calculates an A-Ci curve. For example, you may do \code{Photosyn(Ci=300)}, for which the function \code{Aci} is included as a shortcut (\code{Aci(300)}).
+#'  If Ci is provided as an input, this function calculates an A-Ci curve. For 
+#'  example, you may do \code{Photosyn(Ci=300)}, for which the function \code{Aci} 
+#'  is included as a shortcut (\code{Aci(300)}).
 #'  
 #' \strong{Atmospheric pressure} - 
 #' 
-#' A correction for atmospheric pressure (Patm) is implemented in \code{\link{fitaci}}, but \strong{not in Photosyn}. In \code{fitaci}, the necessary corrections are applied so that estimated Vcmax and Jmax are expressed at standard pressure (Patm=100kPa). In Photosyn, however, the corrections are much more complicated and tend to be very small, because effects of Patm on partial pressures are largely offset by increases in diffusivity (Terashima et al. 1995, Gale 1973). 
+#' A correction for atmospheric pressure (Patm) is implemented in \code{\link{fitaci}}, 
+#' but \strong{not in Photosyn}. In \code{fitaci}, the necessary corrections are applied 
+#' so that estimated Vcmax and Jmax are expressed at standard pressure (Patm=100kPa). 
+#' In Photosyn, however, the corrections are much more complicated and tend to be very 
+#' small, because effects of Patm on partial pressures are largely offset by increases 
+#' in diffusivity (Terashima et al. 1995, Gale 1973). 
 #' 
-#' Note that Patm is an argument to the Photosyn function, but it only affects calculations of Km and GammaStar (as used by fitaci), and transpiration rate. Setting only Patm \strong{does not correct for atmospheric pressure effects on photosynthesis rates}.
+#' Note that Patm is an argument to the Photosyn function, but it only affects 
+#' calculations of Km and GammaStar (as used by fitaci), and transpiration rate. 
+#' Setting only Patm \strong{does not correct for atmospheric pressure effects on 
+#' photosynthesis rates}.
 #' 
-#' The simulation of limitation of the photosynthetic rate to triose-phosphate utilization follows details in Ellsworth et al. (2015), their Eq. 7. Note that the parameter \code{alphag} is set to zero by default.
+#' The simulation of limitation of the photosynthetic rate to triose-phosphate 
+#' utilization follows details in Ellsworth et al. (2015), their Eq. 7. Note that 
+#' the parameter \code{alphag} is set to zero by default.
 #' 
 #' 
 #' 
 #' @references 
-#' Duursma, R.A., Payton, P., Bange, M.P., Broughton, K.J., Smith, R.A., Medlyn, B.E., Tissue, D. T., 2013,  Near-optimal response of instantaneous transpiration efficiency to vapour pressure deficit, temperature and [CO2] in cotton (Gossypium hirsutum L.). Agricultural and Forest Meteorology 168 : 168 - 176.
+#' Duursma, R.A., Payton, P., Bange, M.P., Broughton, K.J., Smith, R.A., Medlyn, B.E., Tissue, 
+#' D. T., 2013,  Near-optimal response of instantaneous transpiration efficiency to vapour 
+#' pressure deficit, temperature and [CO2] in cotton (Gossypium hirsutum L.). Agricultural 
+#' and Forest Meteorology 168 : 168 - 176.
 #' 
-#' Duursma, R.A., Barton, C.V.M., Lin, Y.-S., Medlyn, B.E., Eamus, D., Tissue, D.T., Ellsworth, D.S., McMurtrie, R.E., 2014. The peaked response of transpiration rate to vapour pressure deficit in field conditions can be explained by the temperature optimum of photosynthesis. Agricultural and Forest Meteorology 189 - 190, 2-10. doi:10.1016/j.agrformet.2013.12.007
+#' Duursma, R.A., Barton, C.V.M., Lin, Y.-S., Medlyn, B.E., Eamus, D., Tissue, D.T., Ellsworth, 
+#' D.S., McMurtrie, R.E., 2014. The peaked response of transpiration rate to vapour pressure 
+#' deficit in field conditions can be explained by the temperature optimum of photosynthesis.
+#' Agricultural and Forest Meteorology 189 - 190, 2-10. doi:10.1016/j.agrformet.2013.12.007
 #'
-#' Duursma, R.A., 2015. Plantecophys - An R Package for Analysing and Modelling Leaf Gas Exchange Data. PLoS ONE 10, e0143346. doi:10.1371/journal.pone.0143346
+#' Duursma, R.A., 2015. Plantecophys - An R Package for Analysing and Modelling Leaf Gas 
+#' Exchange Data. PLoS ONE 10, e0143346. doi:10.1371/journal.pone.0143346
 #' 
-#' Ellsworth, D.S., Crous, K.Y., Lambers, H., Cooke, J., 2015. Phosphorus recycling in photorespiration maintains high photosynthetic capacity in woody species. Plant Cell Environ 38, 1142-1156. doi:10.1111/pce.12468
+#' Ellsworth, D.S., Crous, K.Y., Lambers, H., Cooke, J., 2015. Phosphorus recycling in 
+#' photorespiration maintains high photosynthetic capacity in woody species. Plant Cell 
+#' Environ 38, 1142-1156. doi:10.1111/pce.12468
 #'
-#'Ethier, G. and N. Livingston. 2004. On the need to incorporate sensitivity to CO2 transfer conductance into the Farquhar von Caemmerer Berry leaf photosynthesis model. Plant, Cell & Environment. 27:137-153.
+#'Ethier, G. and N. Livingston. 2004. On the need to incorporate sensitivity to CO2 
+#'transfer conductance into the Farquhar von Caemmerer Berry leaf photosynthesis model. 
+#'Plant, Cell & Environment. 27:137-153.
 #'
-#' Farquhar, G.D., S. Caemmerer and J.A. Berry. 1980. A biochemical model of photosynthetic CO2 assimilation in leaves of C3 species. Planta. 149:78-90.
+#' Farquhar, G.D., S. Caemmerer and J.A. Berry. 1980. A biochemical model of photosynthetic 
+#' CO2 assimilation in leaves of C3 species. Planta. 149:78-90.
 #' 
-#' Farquhar, G. D., & Sharkey, T. D. (1982). Stomatal conductance and photosynthesis. Annual review of plant physiology, 33(1), 317-345.
+#' Farquhar, G. D., & Sharkey, T. D. (1982). Stomatal conductance and photosynthesis. 
+#' Annual review of plant physiology, 33(1), 317-345.
 #' 
-#' Gale, J., 1972. Availability of Carbon Dioxide for Photosynthesis at High Altitudes: Theoretical Considerations. Ecology 53, 494-497. doi:10.2307/1934239
+#' Gale, J., 1972. Availability of Carbon Dioxide for Photosynthesis at High Altitudes: 
+#' Theoretical Considerations. Ecology 53, 494-497. doi:10.2307/1934239
 #' 
-#' Leuning, R. 1995. A critical-appraisal of a combined stomatal-photosynthesis model for C-3 plants. Plant Cell and Environment. 18:339-355.
+#' Leuning, R. 1995. A critical-appraisal of a combined stomatal-photosynthesis model for 
+#' C-3 plants. Plant Cell and Environment. 18:339-355.
 #'
-#' Medlyn, B.E., E. Dreyer, D. Ellsworth, M. Forstreuter, P.C. Harley, M.U.F. Kirschbaum, X. Le Roux, P. Montpied, J. Strassemeyer, A. Walcroft, K. Wang and D. Loustau. 2002. Temperature response of parameters of a biochemically based model of photosynthesis. II. A review of experimental data. Plant Cell and Environment. 25:1167-1179.
+#' Medlyn, B.E., E. Dreyer, D. Ellsworth, M. Forstreuter, P.C. Harley, M.U.F. Kirschbaum, 
+#' X. Le Roux, P. Montpied, J. Strassemeyer, A. Walcroft, K. Wang and D. Loustau. 2002. 
+#' Temperature response of parameters of a biochemically based model of photosynthesis. 
+#' II. A review of experimental data. Plant Cell and Environment. 25:1167-1179.
 #' 
-#' Medlyn, B.E., R.A. Duursma, D. Eamus, D.S. Ellsworth, I.C. Prentice, C.V.M. Barton, K.Y. Crous, P. De Angelis, M. Freeman and L. Wingate. 2011. Reconciling the optimal and empirical approaches to modelling stomatal conductance. Global Change Biology. 17:2134-2144.
+#' Medlyn, B.E., R.A. Duursma, D. Eamus, D.S. Ellsworth, I.C. Prentice, C.V.M. Barton, 
+#' K.Y. Crous, P. De Angelis, M. Freeman and L. Wingate. 2011. Reconciling the optimal 
+#' and empirical approaches to modelling stomatal conductance. Global Change Biology. 
+#' 17:2134-2144.
 #' 
-#' Terashima, I., Masuzawa, T., Ohba, H., Yokoi, Y., 1995. Is Photosynthesis Suppressed at Higher Elevations Due to Low CO2 Pressure? Ecology 76, 2663-2668. doi:10.2307/2265838
+#' Terashima, I., Masuzawa, T., Ohba, H., Yokoi, Y., 1995. Is photosynthesis suppressed at 
+#' higher elevations due to low CO2 pressure? Ecology 76, 2663-2668. doi:10.2307/2265838
+#' 
 #' @aliases Photosyn Aci
 #' @return Returns a dataframe.
 #' @examples
@@ -201,7 +286,7 @@ Photosyn <- function(VPD=1.5,
                      
                      GammaStar = NULL,
                      Km = NULL,
-                     
+  
                      Ci = NULL,
                      Tcorrect=TRUE,  
                      returnParsOnly=FALSE,
@@ -218,6 +303,15 @@ Photosyn <- function(VPD=1.5,
   
   if(inputCi & inputGS)stop("Cannot provide both Ci and GS.")
   
+  if(is.null(TPU))TPU <- 1000
+  
+  if(is.null(VPD) && !is.null(RH)){
+    VPD <- RHtoVPD(RH, Tleaf)
+  } 
+  if(is.null(VPD) && is.null(RH)){
+    stop("Need one of VPD, RH.")
+  }
+
   #---- Constants; hard-wired parameters.
   Rgas <- .Rgas()
   GCtoGW <- 1.57     # conversion from conductance to CO2 to H2O
@@ -277,7 +371,7 @@ Photosyn <- function(VPD=1.5,
   if(gsmodel == "BBdefine"){
     GSDIVA <- BBmult / GCtoGW
   }
-  
+
   if(inputGS){
     
     GC <- GS / GCtoGW
@@ -402,7 +496,7 @@ Photosyn <- function(VPD=1.5,
       # When below light-compensation points, assume Ci=Ca.
       if(!inputCi){
         lesslcp <- vector("logical", length(Aj))
-        lesslcp <- Aj-Rd < 0
+        lesslcp <- Aj <= Rd + 1E-09
         
         if(length(Ca) == 1)Ca <- rep(Ca, length(CIJ))
         if(length(GammaStar) == 1)GammaStar <- rep(GammaStar, length(CIJ))
@@ -413,6 +507,7 @@ Photosyn <- function(VPD=1.5,
           (CIJ[lesslcp] + 2*GammaStar[lesslcp])
   
         Ci <- ifelse(Aj < Ac, CIJ, CIC)
+        
       }
   }
 
@@ -462,7 +557,8 @@ Photosyn <- function(VPD=1.5,
       
       # For zero GC:
       Ci[!is.finite(Ci)] <- Ca
-      # Stomata fully shut; Ci is not really Ca but that's how we like to think about it.
+      # Stomata fully shut; Ci is not really Ca but that's 
+      # how we like to think about it.
     }
     
     # Chloroplastic CO2 concentration
@@ -490,7 +586,7 @@ Photosyn <- function(VPD=1.5,
                       Cc=Cc,
                       PPFD=PPFD,
                       Patm=Patm)
-  
+
 return(df)
 }
 

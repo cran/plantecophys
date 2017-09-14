@@ -28,12 +28,10 @@
 #' 
 #' @examples
 #' 
-#' # Example data, reduced version to save check time:
-#' manyacidat2 <- droplevels(manyacidat[manyacidat$Curve %in% levels(manyacidat$Curve)[1:10],])
-#' 
+#' \dontrun{
 #' # Fit many curves (using an example dataset)
 #' # The bilinear method is much faster, but compare using 'default'!
-#' fits <- fitacis(manyacidat2, "Curve", fitmethod="bilinear")
+#' fits <- fitacis(manyacidat, "Curve", fitmethod="bilinear")
 #' with(coef(fits), plot(Vcmax, Jmax))
 #' 
 #' # The resulting object is a list, with each component an object as returned by fitaci
@@ -55,9 +53,7 @@
 #' 
 #' # And plot the worst-fitting curve:
 #' plot(fits[[which.max(rmses)]])
-#'
-#' # Not run to save check time
-#' \dontrun{ 
+#' 
 #' # It is very straightforward to summarize the coefficients by a factor variable
 #' # that was contained in the original data. In manyacidat, there is a factor variable
 #' # 'treatment'.
@@ -67,6 +63,7 @@
 #' # And now use this to plot Vcmax by treatment.
 #' boxplot(Vcmax ~ treatment, data=coef(fits), ylim=c(0,130))
 #' }
+#' 
 #' @export
 #' @importFrom utils setTxtProgressBar
 #' @importFrom utils txtProgressBar

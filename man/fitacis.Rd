@@ -51,12 +51,10 @@ A convenient function to fit many curves at once, by calling \code{\link{fitaci}
 }
 \examples{
 
-# Example data, reduced version to save check time:
-manyacidat2 <- droplevels(manyacidat[manyacidat$Curve \%in\% levels(manyacidat$Curve)[1:10],])
-
+\dontrun{
 # Fit many curves (using an example dataset)
 # The bilinear method is much faster, but compare using 'default'!
-fits <- fitacis(manyacidat2, "Curve", fitmethod="bilinear")
+fits <- fitacis(manyacidat, "Curve", fitmethod="bilinear")
 with(coef(fits), plot(Vcmax, Jmax))
 
 # The resulting object is a list, with each component an object as returned by fitaci
@@ -79,8 +77,6 @@ plot(rmses, type='h', ylab="RMSE", xlab="Curve nr")
 # And plot the worst-fitting curve:
 plot(fits[[which.max(rmses)]])
 
-# Not run to save check time
-\dontrun{ 
 # It is very straightforward to summarize the coefficients by a factor variable
 # that was contained in the original data. In manyacidat, there is a factor variable
 # 'treatment'.
@@ -90,6 +86,7 @@ fits <- fitacis(manyacidat, "Curve", fitmethod="bilinear", id="treatment")
 # And now use this to plot Vcmax by treatment.
 boxplot(Vcmax ~ treatment, data=coef(fits), ylim=c(0,130))
 }
+
 }
 \references{
 Duursma, R.A., 2015. Plantecophys - An R Package for Analysing and Modelling Leaf Gas Exchange Data. PLoS ONE 10, e0143346. doi:10.1371/journal.pone.0143346
