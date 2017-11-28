@@ -432,7 +432,7 @@ fitaci <- function(data,
   formals(Photosyn)$Vcmax <- l$pars[1]
   formals(Photosyn)$Jmax <- l$pars[2]
   formals(Photosyn)$Rd <- l$pars[3]
-  formals(Photosyn)$TPU <- f$TPU
+  formals(Photosyn)$TPU <- if(fitTPU)l$pars["TPU","Estimate"] else 1000
   formals(Photosyn)$alphag <- alphag
   formals(Photosyn)$Tcorrect <- Tcorrect
   formals(Photosyn)$alpha <- alpha
@@ -450,9 +450,10 @@ fitaci <- function(data,
   
   l$Photosyn <- Photosyn
   
-  # Store Ci at which photosynthesis transitions from 
-  # Jmax to Vcmax limitation
-  l$Ci_transition <- findCiTransition(l$Photosyn)
+  # Transition points.
+  trans <- findCiTransition(l$Photosyn)
+  l$Ci_transition <- trans[1]
+  l$Ci_transition2 <- trans[2]
   l$Rd_measured <- haveRd
   
   # Save GammaStar and Km (either evaluated at mean temperature, 
@@ -829,11 +830,12 @@ do_fit_method_bilinear <- function(data, haveRd, alphag, Rd_meas,
     orig_dat <- data[, 1:(match("Ci_original", names(data))-1)]
     
     orig_dat$Vcmax <- (data$ALEAF + Rd_meas)  / data$vcmax_pred
-    orig_dat$Jmax <- (data$ALEAF + Rd_meas)  / data$Jmax_pred
+    J <- (data$ALEAF + Rd_meas)  / data$Jmax_pred
+    orig_dat$Jmax <- inverseJfun(mean(data$PPFD), alpha, 4 * J, theta)
     
     if(Tcorrect){
-      orig_dat$Jmax <- orig_dat$Jmax / TJmax(mean(data$Tleaf), EaJ, delsJ, EdVJ)
-      orig_dat$Vcmax <- orig_dat$Vcmax / TVcmax(mean(data$Tleaf),EaV, delsC, EdVC)
+      orig_dat$Jmax <- orig_dat$Jmax / TJmax(data$Tleaf, EaJ, delsJ, EdVJ)
+      orig_dat$Vcmax <- orig_dat$Vcmax / TVcmax(data$Tleaf,EaV, delsC, EdVC)
     }
     
     return(orig_dat)
