@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Dushan Kumarathunge, Belinda Medlyn, Remko Duursma" />
+
+<meta name="date" content="2019-03-13" />
+
+<title>New temperature responses of Vcmax and Jmax</title>
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">New temperature responses of Vcmax and Jmax</h1>
+<h4 class="author"><em>Dushan Kumarathunge, Belinda Medlyn, Remko Duursma</em></h4>
+<h4 class="date"><em>2019-03-13</em></h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#source-of-data">Source of data</a></li>
+<li><a href="#data-analysis">Data analysis</a></li>
+<li><a href="#results">Results</a></li>
+</ul>
+</div>
+
+<p>The <code>fitaci</code> function includes the option to correct the estimated Vcmax and Jmax for temperature, so that all parameters can be (by default) be expressed at 25C. To do this correction, <code>Photosyn</code> (and hence <code>fitaci</code>) includes a default temperature correction. If the curves are fit with the argument <code>Tcorrect = TRUE</code> (the default), Vcmax and Jmax are fit, and recalculated for 25C using the usual Arrhenius-type equations.</p>
+<p>The original version of <code>plantecophys</code> used temperature corrections from an experiment with <em>Eucalyptus</em>, and were never meant to be general - but the defaults were unfortunately never adjusted. In this document, we describe forthcoming work on a general parameterization for Jmax and Vcmax temperature dependencies, based on a comprehensive literature review.</p>
+<p>As of <code>plantecophys</code> version 1.4, the default temperature parameters in <code>Photosyn</code> are set to these new values. This means that if you fit curves with <code>Tcorrect = TRUE</code>, you will get slightly different answers (unless you used your own parameters in the first place).</p>
+<div id="source-of-data" class="section level2">
+<h2>Source of data</h2>
+<p>We compiled published and unpublished leaf level standard photosynthetic carbon dioxide response measurements (referred as ACi curves hereafter) for five plant functional types i) broadleaf deciduous trees, ii) broadleaf evergreen trees, iii) needle evergreen trees, iv) tropical evergreen trees and v) Arctic) across tropical wet evergreen forests to arctic tundra. Each of the dataset in the database contains ACi curves measured at multiple leaf temperatures (at least 3 temperature levels) and saturating irradiance levels. The database covers 141 tree species from 37 experiments conducted around the world, with 15 sites from Australia, six sites from north America, one sites from South America, three sites from Central America, five sites from Europe, one site from Africa and four sites from Asia. Sites latitude ranged from 42.81S to 71.28N. Sites mean annual growing season temperature (long-term average temperature of months where mean monthly temperature is above 0C) ranged from 3℃ to 30℃. The synthesized quality controlled (described later in detail) dataset contains 3498 ACi curves measured from 1◦C to 50◦C leaf temperatures.</p>
+<p>The method of data collection was consistent across all datasets. Except for few occasions, measurements were made using the Licor 6400 portable photosynthesis system with standard leaf chambers. Measurements were first started at ambient CO2 levels (360-400 ppm; depending on the year of data collection) and changed stepwise through a series of subambient (40-400 ppm) to superambient saturating CO2 concentrations (400-2000 ppm). The same protocol of measurement was repeated on the same leaf at different leaf temperatures. We visually inspect each and every individual ACi curve in the dataset for possible outliers and erroneous data points. We used following criteria (De Kauwe, 2016) to screen individual ACi curves for the analysis performed in this paper where i) if a curve’s first point is measured at ambient CO2 concentrations &lt; 300 ppm or &gt; 400 ppm, ii) if the fitted function has a R2 &lt;0.99 (however, if the number of replicates available for a given occasion is limited, the R2 was reduced to 0.90)</p>
+</div>
+<div id="data-analysis" class="section level2">
+<h2>Data analysis</h2>
+<p>We parameterized the Farquhar model using fitacis function within plantecophys package (Duursma, 2015) in R version 3.3.2 (R Development Core Team, 2012). We assumed the Bernacchi et al. (2001) kinetic constants for the temperature response of Kc, Ko and Γ^* as given in Medlyn et al. (2002a). The estimated parameters, Vcmax and Jmax are apparent values as we assumed infinite mesophyll conductance (gm). The significance of gm on Vcmax and Jmax estimates and their temperature response has been discussed elsewhere, but due to lack of proper parameterization for temperature response of gm, we did not include it in our analysis (see Rogers et al., 2017).</p>
+<p>The temperature response of Vcmax and Jmax were fitted using the peaked Arrhenius functions. Model parameters were estimated in non-linear mixed model framework using the nlme function within the <code>nlme</code> package. Replicate trees and leaves of the same species were included as random effects in models. However, for some occasions (ex. Rainforest datasets), individual species were considered as a random variable in the model. Note for some datasets, parameter estimates were done in conventional non-linear framework due to lack of sufficient number of replicates for mix model approach.</p>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+<p>The fitted curves and data compilations are not included in this article, as they will be published in the near future. Below are a table with the old and new parameter values, and a figure illustrating the difference. The most significant change is to be seen at high temperature (&gt; 30C).</p>
+<p><strong>Table 1</strong>. Old and new parameter values for activation energy (J mol-1; EaV for Vcmax, EaJ for Jmax), and delta S (J mol-1 K-1). The EdVC and EdVJ parameters control the peakedness of the curve; note that in the old parameterization Vcmax did not follow a peaked dependency on temperature. If the exact behaviour of <code>plantecophys</code> &lt; 1.4 is desired, use the old parameter values in the call to <code>Photosyn</code> or <code>fitaci</code>.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Old value</th>
+<th>New value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>EaV</td>
+<td>82620.87</td>
+<td>58550</td>
+</tr>
+<tr class="even">
+<td>delsC</td>
+<td>645.1013</td>
+<td>629.26</td>
+</tr>
+<tr class="odd">
+<td>EdVC</td>
+<td>0</td>
+<td>200000</td>
+</tr>
+<tr class="even">
+<td>EaJ</td>
+<td>39676.89</td>
+<td>29680</td>
+</tr>
+<tr class="odd">
+<td>delsJ</td>
+<td>641.3615</td>
+<td>631.88</td>
+</tr>
+<tr class="even">
+<td>EdVJ</td>
+<td>200000</td>
+<td>200000</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Figure 1</strong>. Comparison between old and new temperature responses of Vcmax and Jmax.</p>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

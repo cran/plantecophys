@@ -9,7 +9,7 @@
 #' also requires a grouping variable.
 #' @param varnames List of names of variables in the dataset (see Details).
 #' @param Tcorrect If TRUE, Vcmax and Jmax are corrected to 25C. Otherwise, Vcmax and Jmax 
-#' are estimated at measurement temperature.
+#' are estimated at measurement temperature. \strong{Warning} : since package version 1.4, the default parameters have been adjusted (see Details).
 #' @param Patm Atmospheric pressure (kPa)
 #' @param citransition If provided, fits the Vcmax and Jmax limited regions separately (see Details).
 #' @param quiet If TRUE, no messages are written to the screen.
@@ -74,7 +74,8 @@
 #' but rather for spot gas exchange measurements, when a simple estimate of Vcmax or Jmax 
 #' is needed, for example when separating stomatal and non-stomatal drought effects on 
 #' photosynthesis (Zhou et al. 2013, AgForMet). The user will have to decide whether the Vcmax 
-#' or Jmax rates are used in further analyses. This fitting method can not be used in \code{fitacis}, because Vcmax and Jmax are already estimated for each point in the dataset.
+#' or Jmax rates are used in further analyses. This fitting method can not be used in \code{fitacis}, 
+#' because Vcmax and Jmax are already estimated for each point in the dataset.
 #' 
 #' \subsection{TPU limitation}{Optionally, the \code{fitaci} function estimates the triose-phosphate 
 #' utilization (TPU) rate. The TPU can act as another limitation on photosynthesis, and can be 
@@ -91,7 +92,10 @@
 #' at measurement temperature). When \code{Tcorrect=FALSE}, estimates of all parameters are at 
 #' measurement temperature. If TPU is fit, it is never corrected for temperature. Important 
 #' parameters to the fit are GammaStar and Km, both of which are calculated from leaf temperature 
-#' using standard formulations. Alternatively, they can be provided as known inputs.}
+#' using standard formulations. Alternatively, they can be provided as known inputs. \strong{Warning} : 
+#' since package version 1.4, the default parameters have been adjusted. The new parameter values 
+#' (EaV, EdVJ, delSJ, etc.) were based on a comprehensive literature review. See 
+#' \code{vignette("new_T_responses")} or the article on remkoduursma.github.io/plantecophys.}
 #' 
 #' \subsection{Mesophyll conductance}{It is possible to provide an estimate of the mesophyll 
 #' conductance as input (\code{gmeso}), in which case the fitted Vcmax and Jmax are to be interpreted 
@@ -122,6 +126,13 @@
 #' \strong{root mean squared error} (RMSE), which can be extracted as \code{myfit$RMSE}. This 
 #' is a useful metric to compare the different fitting methods.}
 #' 
+#' \subsection{Predicting and the CO2 compensation point}{The fitted object contains two functions 
+#' that reproduce the fitted curve exactly. Suppose your object is called 'myfit', then 
+#' \code{myfit$Photosyn(200)} will give the fitted rate of photosynthesis at a Ci of 200. 
+#' The inverse, calculating the Ci where some rate of photosynthesis is achieved, can be done with
+#' \code{myfit$Ci(10)} (find the Ci where net photosynthesis is ten). The (fitted!) CO2 
+#' compensation point can then be calculated with : \code{myfit$Ci(0)}}.
+#' 
 #' \subsection{Atmospheric pressure correction}{Note that atmospheric pressure (Patm) is taken 
 #' into account, assuming the original data are in molar units (Ci in mu mol mol-1, or ppm). 
 #' During the fit, Ci is converted to mu bar, and Km and Gammastar are recalculated accounting 
@@ -144,7 +155,9 @@
 #' Duursma, R.A., 2015. Plantecophys - An R Package for Analysing and Modelling Leaf Gas 
 #' Exchange Data. PLoS ONE 10, e0143346. doi:10.1371/journal.pone.0143346
 #' 
-#' De Kauwe, M. G. et al. 2016. A test of the 'one-point method' for estimating maximum carboxylation capacity from field-measured, light-saturated photosynthesis. New Phytol 210, 1130-1144.
+#' De Kauwe, M. G. et al. 2016. A test of the 'one-point method' for estimating maximum 
+#' carboxylation capacity from field-measured, light-saturated photosynthesis. 
+#' New Phytol 210, 1130-1144.
 #' 
 #' @return A list of class 'acifit', with the following components:
 #' \describe{
@@ -161,8 +174,13 @@
 #' the current fit. That is, Vcmax, Jmax and Rd are set to those estimated in the fit, and Tleaf and 
 #' PPFD are set to the mean value in the dataset. All other parameters that were set in fitaci are 
 #' also used (e.g. temperature dependency parameters, TPU, etc.).}
+#' \item{Ci}{As Photosyn, except the opposite: calculate the Ci where some rate of net photosynthesis 
+#' is achieved.}
 #' \item{Ci_transition}{The Ci at which photosynthesis transitions from Vcmax 
 #' to Jmax limited photosynthesis.}
+#' \item{Ci_transition2}{The Ci at which photosynthesis transitions from Jmax to
+#' TPU limitation. Set to NA is either TPU was not estimated, or it could not be 
+#' estimated from the data.}
 #' \item{Rd_measured}{Logical - was Rd provided as measured input?}
 #' \item{GammaStar}{The value for GammaStar, either calculated or provided to the fit.}
 #' \item{Km}{he value for Km, either calculated or provided to the fit.}
@@ -450,6 +468,20 @@ fitaci <- function(data,
   
   l$Photosyn <- Photosyn
   
+  # The inverse - find Ci given a rate of photosyntheiss
+  l$Ci <- function(ALEAF){
+    
+    O <- function(ci, photo){
+      (l$Photosyn(Ci=ci)$ALEAF - photo)^2
+    }
+    o <- optimize(O, interval=c(1,10^5), photo =ALEAF)
+    if(o$objective > 1e-02){
+      return(NA)
+    } else {
+      return(o$minimum)
+    }
+  }
+  
   # Transition points.
   trans <- findCiTransition(l$Photosyn)
   l$Ci_transition <- trans[1]
@@ -574,8 +606,8 @@ set_Rdmeas <- function(varnames, data, useRd, citransition, quiet){
       Rd_meas <- data[,varnames$Rd]
       Rd_meas <- unique(Rd_meas)
       if(length(Rd_meas) > 1){
-        Stop(paste("If Rd provided as measured, it must be a single",
-                   "unique value for an A-Ci curve."))
+        Stop("If Rd provided as measured, it must be a single",
+             "\nunique value for an A-Ci curve.")
       }
       
       # Use positive value throughout.
@@ -698,8 +730,8 @@ do_fit_method1 <- function(data, haveRd, Rd_meas, Patm, startValgrid,
                   start=list(Vcmax=Vcmax_guess, Jmax=Jmax_guess)), silent=TRUE)
     
     if(inherits(nlsfit, "try-error")){
-      Stop(paste("Could not fit curve -",
-                 "check quality of data or fit using fitmethod='bilinear'."))
+      Stop("Could not fit curve -",
+           "\ncheck quality of data or fit using fitmethod='bilinear'.")
     }
     
     p <- coef(nlsfit)

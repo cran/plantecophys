@@ -42,7 +42,8 @@
 #' @param Ci Optional, intercellular CO2 concentration (ppm). If not provided, 
 #' calculated via gs model.
 #' @param Tcorrect If TRUE, corrects input Vcmax and Jmax for actual Tleaf (if FALSE, 
-#' assumes the provided Vcmax and Jmax are at the Tleaf provided)
+#' assumes the provided Vcmax and Jmax are at the Tleaf provided). \strong{Warning} : since package 
+#' version 1.4, the default parameters have been adjusted (see Details).
 #' @param returnParsOnly If TRUE, returns calculated Vcmax,Jmax,Km and GammaStar based on 
 #' leaf temperature.
 #' @param whichA Which assimilation rate does gs respond to? 
@@ -61,7 +62,10 @@
 #' for the temperature response of photosynthetic parameters, including Vcmax, Jmax, 
 #' Gammastar, and Km follow Medlyn et al. (2002). However, \strong{note that the default 
 #' temperature response parameter values are not taken from Medlyn, and likely will have to 
-#' be adjusted for your situation}.
+#' be adjusted for your situation}. \strong{Warning} : since package version 1.4, the default 
+#' parameters have been adjusted. The new parameter values (EaV, EdVJ, delSJ, etc.) were based 
+#' on a comprehensive literature review. See vignette("new_T_responses") or the article on 
+#' remkoduursma.github.io/plantecophys.
 #' 
 #' #'  By default, the \code{Photosyn} function returns the hyperbolic minimum of Vcmax and 
 #' Jmax-limited photosynthetic rates, as well as the hyperbolic minimum of Jmax-limited and 
@@ -276,13 +280,13 @@ Photosyn <- function(VPD=1.5,
                      TrefR = 25,
                      Rdayfrac = 1.0,
                      
-                     EaV = 82620.87,
-                     EdVC = 0,
-                     delsC = 645.1013,
+                     EaV = 58550,
+                     EdVC = 200000,
+                     delsC = 629.26,
                      
-                     EaJ = 39676.89,
+                     EaJ = 29680,
                      EdVJ = 200000,
-                     delsJ = 641.3615,
+                     delsJ = 631.88,
                      
                      GammaStar = NULL,
                      Km = NULL,
@@ -296,12 +300,12 @@ Photosyn <- function(VPD=1.5,
   whichA <- match.arg(whichA)
   gsmodel <- match.arg(gsmodel)
   if(gsmodel == "BBdefine" && is.null(BBmult)){
-    stop("When defining your own BB multiplier, set BBmult.")
+    Stop("When defining your own BB multiplier, set BBmult.")
   }
   inputCi <- !is.null(Ci)
   inputGS <- !is.null(GS)
   
-  if(inputCi & inputGS)stop("Cannot provide both Ci and GS.")
+  if(inputCi & inputGS)Stop("Cannot provide both Ci and GS.")
   
   if(is.null(TPU))TPU <- 1000
   
@@ -309,7 +313,7 @@ Photosyn <- function(VPD=1.5,
     VPD <- RHtoVPD(RH, Tleaf)
   } 
   if(is.null(VPD) && is.null(RH)){
-    stop("Need one of VPD, RH.")
+    Stop("Need one of VPD, RH.")
   }
 
   #---- Constants; hard-wired parameters.
@@ -516,7 +520,6 @@ Photosyn <- function(VPD=1.5,
 
     # Limitation by triose-phosphate utilization
     if(!is.null(Ci)){
-      
       Ap <- 3 * TPU * (Ci - GammaStar)/(Ci - (1 + 3*alphag)*GammaStar)
       Ap[Ci < 400] <- 1000  # avoid nonsense
     } else {

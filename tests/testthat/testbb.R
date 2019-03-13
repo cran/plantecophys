@@ -9,7 +9,7 @@ dfr <- data.frame(PPFD=runif(n, 100, 1000),
                   Tleaf=runif(n,20,28),
                   ID=rep(letters[1:(n/50)], each=50))
 p <- Photosyn(PPFD=dfr$PPFD, VPD=dfr$VPD, Tleaf=dfr$Tleaf)
-dfr$gs <-  p$GS + rnorm(n, 0, 0.03)
+dfr$gs <- p$GS + rnorm(n, 0, 0.03)
 dfr$aleaf <- p$ALEAF
 dfr$Ca <- 400
 dfr$RH <- VPDtoRH(dfr$VPD, dfr$Tleaf)/100
@@ -49,7 +49,9 @@ fit5_2 <- fitBB(dfr, varnames=list(ALEAF="aleaf", GS="gs", Ca="Ca", VPD="VPD"),
               fitg0=FALSE)
 
 fits1 <- fitBBs(dfr, "ID",varnames=list(ALEAF="aleaf", GS="gs", Ca="Ca", VPD="VPD"))
+fits2 <- fitBBs(dfr, "ID",varnames=list(ALEAF="aleaf", GS="gs", Ca="Ca", VPD="VPD"), fitg0=TRUE)
 print(fits1)
+print(fits2)
 print(coef(fits1))
 
 print(fit2)
@@ -63,13 +65,31 @@ test_that("Fit BB output", {
   expect_length(coef(fit1),2)
   expect_length(coef(fit2),2)
   expect_equal(coef(fit1)[[1]], 0)
-  expect_lt(coef(fit2)[[1]],0)
+  expect_gt(coef(fit2)[[1]],0)
   expect_equal(coef(fit3), coef(fit3.2))
 })
 
-test_that("fitBB errors expected", {
+
+# Missing data
+var_names <- list(ALEAF="aleaf", GS="gs", VPD="VPD", Ca="Ca")
+dfr_gs <- dfr[, -match("gs", names(dfr))]
+dfr_vpd <- dfr[, -match("VPD", names(dfr))]
+dfr_aleaf <- dfr[, -match("aleaf", names(dfr))]
+dfr_ca <- dfr[, -match("Ca", names(dfr))]
+dfr_rh <- dfr[, -match("RH", names(dfr))]
+
+test_that("fitBB exceptions", {
   expect_error(fitBB(dfr, varnames=list(ALEAF="xx", GS="gs", VPD="VPD", Ca="Ca")))
   expect_error(fitBB(dfr, varnames=list(ALEAF="aleaf", GS="gs", VPD="xxx", Ca="Ca")))
+  
+  expect_error(fitBB(dfr_gs, varnames=var_names))
+  expect_error(fitBB(dfr_vpd, varnames=var_names))
+  expect_error(fitBB(dfr_aleaf, varnames=var_names))
+  expect_error(fitBB(dfr_ca, varnames=var_names))
+  expect_error(fitBB(dfr_rh, varnames=var_names, gsmodel="BallBerry"))
 })
+
+
+
 
 

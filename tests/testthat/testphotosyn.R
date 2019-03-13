@@ -20,15 +20,19 @@ p4_2 <- Photosyn(GS=0.2)
 p5_1 <- Photosyn(gmeso=0.4)
 p5_2 <- Photosyn(gmeso=0.2)
 
-p6_1 <- Photosyn(gsmodel="BBLeuning")
+p6_1 <- Photosyn(gsmodel="BBLeuning", TPU = NULL)
 p6_2 <- Photosyn(gsmodel="BallBerry")
 p6_3 <- Photosyn(gsmodel="BallBerry", RH=VPDtoRH(1.5,25))
 p6_4 <- Photosyn(gsmodel="BallBerry", RH=VPDtoRH(1.5,25)-2)
-
+p6_5 <- Photosyn(GS=-0.01)
+p6_6 <- Photosyn(gsmodel="BallBerry",  VPD = NULL, RH = 20)
 p7 <- Photosyn(Ci=200, Tleaf=c(20,25))  # Used to be 'Jena bug'
 
 p8_1 <- Photosyn(Ci=800, Ca=1200, TPU=8)
 p8_2 <- Photosyn(Ci=800, Ca=1200, TPU=5)
+
+Photosyn(whichA = "Ac")
+Photosyn(whichA = "Aj")
 
 p9 <- Photosyn(EdVC = 1)  # for a subclause test
 
@@ -54,10 +58,11 @@ test_that("Photosyn names", {
   expect_named(p0)
 })
 
-test_that("Photosyn expects errors", {
+test_that("Photosyn exceptions", {
   expect_error(Photosyn(gsmodel="BBmult"))
   expect_error(Photosyn(VPD=NULL, RH=NULL))
   expect_error(Photosyn(GS=0.2, Ci=200))
+  expect_error(Photosyn(gsmodel = "BBdefine"))
 })
 
 
