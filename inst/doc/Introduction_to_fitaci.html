@@ -1,45 +1,64 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Remko Duursma" />
 
-<meta name="date" content="2019-03-13" />
+<meta name="date" content="2021-03-31" />
 
 <title>Introduction to fitaci</title>
 
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +67,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -96,7 +115,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -107,189 +126,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#header {
-text-align: center;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
-table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
-}
-blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
-}
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
-}
-dl {
-margin-left: 0;
-}
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
-}
-dl dt {
-font-weight: bold;
-}
-ul {
-margin-top: 0;
-}
-ul li {
-list-style: circle outside;
-}
-ul ul {
-margin-bottom: 0;
-}
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
-}
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
 
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
-</style>
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+
+
+
 
 </head>
 
@@ -299,14 +140,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 <h1 class="title toc-ignore">Introduction to fitaci</h1>
-<h4 class="author"><em>Remko Duursma</em></h4>
-<h4 class="date"><em>2019-03-13</em></h4>
+<h4 class="author">Remko Duursma</h4>
+<h4 class="date">2021-03-31</h4>
 
 
 
 <p>This vignette explains how to fit A-Ci curves with the <code>plantecophys</code> package in R. It is written to be usable for beginners in R.</p>
 <p>After installing the package from CRAN with <code>install.packages(&quot;plantecophys&quot;)</code>, load the package the usual way:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(plantecophys)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plantecophys)</span></code></pre></div>
 <div id="preparing-the-data" class="section level2">
 <h2>Preparing the data</h2>
 <p>In the examples below I will use two built-in datasets in the <code>plantecophys</code> package. The <code>acidata1</code> dataset looks like this:</p>
@@ -384,14 +225,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </table>
 <p>The easiest approach is to make your dataset look like that, including those column names. If you want to use different column names, see an example further below.</p>
 <p>Read your data into a dataframe in R, possibly using <code>read.csv</code> (comma-separated values):</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">mydata &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;myfile.csv&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mydata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;myfile.csv&quot;</span>)</span></code></pre></div>
 </div>
 <div id="fitting-a-ci-curves" class="section level2">
 <h2>Fitting A-Ci curves</h2>
 <p>If you have the default column names, fitting an A-Ci curve is as easy as this:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">fit &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">fitaci</span>(acidata1)</span></code></pre></div>
 <p>The results are stored in the object <code>fit</code>, which can be inspected via:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">fit</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit</span></code></pre></div>
 <pre><code>## Result of fitaci.
 ## 
 ## Data and predictions:
@@ -444,61 +285,64 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 ## GammaStar =  64.80184 
 ## Km =  1460.068</code></pre>
 <p>The coefficients can be extracted,</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">coef</span>(fit)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(fit)</span></code></pre></div>
 <pre><code>##      Vcmax       Jmax         Rd 
 ##  46.846621 105.239159   1.336532</code></pre>
 <p>And a standard plot can be made:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">plot</span>(fit)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit)</span></code></pre></div>
 <p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAHgCAMAAABNUi8GAAABAlBMVEUAAAAAADoAAGYAAP8AOjoAOmYAOpAAZmYAZpAAZrY6AAA6ADo6AGY6OgA6Ojo6OmY6OpA6ZmY6ZpA6ZrY6kLY6kNtmAABmADpmAGZmOgBmOjpmOmZmOpBmZjpmZmZmZpBmkLZmkNtmtrZmtttmtv+QOgCQZgCQZjqQZmaQkGaQkLaQkNuQtpCQtraQttuQ27aQ2/+2ZgC2Zjq2kDq2kGa2kJC2kLa2tma2tpC2tra2ttu225C229u22/+2/7a2///T09PbkDrbkGbbkJDbtmbbtpDbtrbbttvb27bb29vb2//b/7bb////AAD/tmb/tpD/25D/27b/29v//7b//9v///8hxcErAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAWn0lEQVR4nO2dC5vbxnVAsZKldllHaaWQjpXGqevdOklbV1Td1ErrKnQl12oklDbJ//9XijefIIG5F4M7w3M+a83dBS6Gw7PzwmAm2QAYJhk7AQDnQFAwDYKCaRAUTIOgYBoEBdMgKJgGQcE0CAqmQVAwDYKCaRAUTIOgYBoEBdMgKJgGQcE0CAqmQVAwDYKCaRAUTIOgYBoEBdMgKJgGQcE0CAqmQVAwDYKCaRAUTIOgYBoEBdMgKJgGQcE0CAqmQVAwDYKCaRAUTIOgYJrBBU2ujQ9jJyAUOvozrJ7XV0R/GDsBoYCgo4CfXUHQMcDPziDoGCBoZxB0BPCzOwjqH/zsAYL6B0F7gKDewc8+IKhv8LMXCOoZ/OwHgvoFP3uCoH5B0J4gqFfwsy8I6hP87A2CegQ/+4OgHkHQ/iCoP/DTAQT1Bn66gKC+wE8nENQXCOoEgnoCP91AUD/gpyMI6gX8dAVBfYCfziCoDxDUGQT1AH66g6DDg58CEHRw8FMCgg4OgkpA0KHBTxEIOjD4KQNBBwZBZSDosOCnEAQdFPyUgqCDgqAdOLvcN4IOCX6epsd69D4EXc2m2dc0S8CD14NcwCr4uYfTPgneBF08fp+/uhviAkbBz4LOSp78uS9BKzULTdUvYJSrFrT/jjKnD/El6HJSCJq2VfIRCnqVfgp2Ojp9MCXoUFyVn85aHoU4+nHHs/tebpfVLL/y7abuLqlfwCLX4Kd7cdke7OjHHc92vm5J5ujNi6wjPx3qAtaI2U9VLw/CHv+048kKCRj3Ap6JT9CBtNy/wokfdjxXNylN2KHe69hE5uegXl64tOphbSyyd1V2kq6jFx+Hn8daxiroImt/rmZ5L+k6BA3fz5a6PFJB1/fT4uvj9whqm0tVeaSC1jc454/fX4WgQfrZrZnpv7vgrwTNmN8iqDH6dn+8d2f9tEErLVez1vlMEQkaip8jds174KsXX1by63sE9cIF4ex72cBAvTZG/Dw56B1EmbkPgipjxs99AUN0swBBlTEoaIheNiCoLhb83BE0aDcLEFQVE34GXKEfg6Ca2PNz7KSIQVBNDAgakZsFCKrIeH5GVKcfgKB6jORnvHLmIKgaI/gZrZZbEFQL737GL2cOgmrhV9CHV+BmAYIq4dPPayg5axBUB19+XkGrcx8EVcGHn/H21M+BoCoMLOh1ulmAoBoM6ef1ulmAoAoM5eeVu1mAoHKG8RM5CxBUzhCC4mYFgopR95OScwcElaLqJ63OQxBUip6gyHkCBBWi5idungRBhWgISsnZDoLKUPATPc+BoDLEguLmeRBUhMhPis4OIKgEgZ902buBoBKcBcXNriCoAFc/sbM7COqOo5/o2QcEdcbBT9qdvUFQZ/oKSrfIBQR1paefuOkGgjrSy0/sdAZBHekhKHoKQFA3uvuJnSIQ1InOfqKnEAR1oaOf1O1y/Ai6vi8/q7ZtvKIUFD018CLoIpmWL9L6hfIFPNPBT+xUwoegzWaymaqP3w9wAc9c9hM91fAhaL0dd0Yaw16dlwTFTkUoQXtzwU/0VMVTG7QqQqNog54VFD2V8dOLX83KVllb+RmSoBf99JWQ64Bx0L6cERQ99REK+tP3r/74v4Krh7fUS6ufYb2NYJAI+uOXlVxPv71w+iI7qGiGLoLvxbcIip4D4S7o+mX2iTx58tnzJ5MkedbauMxZ3LzImqG3mwgEPe0ndg6Gs6Dr+0dfNVa+fd7e/amHmdb32TFxCoqew+Es6Msv9r5d/qbd0Hqgfv74feiC5n4e2oieQ+Iq6HcvDn6w/Lz15Gagfn4buKCVn7tCUrsPi6Og6z8eHfJ9exFaa7matc5nCuIzbvxslETPofEzDlrfSlrfRyUoeg4PA/XdKTpIO4KipwcQtDNVB772Ez294CBofWP9zPz4wdIxJvUIUyEmtbsnXErQnelzvtMxInsjoOjpC6cqfvXJ4SCTr3SMx66f6OkP2qAd2REUPz3iKuj6f87efR8qHaOx9RM9veIq6OqXij2k7ukYjUZQ/PQLgnZipwdvPKWxgaBdwM/RQNAulIKi5wggaAfwczycBf3V9Qja3IMfOyHXiMI46A+Cp+b6pmMM8HNMZIK+/dXrH2fnHnfXTscYnJpFD74QCbpIHryeJ3/5Mrn1lY4RyPx8iJ+jIRF0fX/zYjVL7lYzeRFqVoAPhZ5mkxc9EkFXswev06wQzf/vKR3++YCfoyIVdJFV78tJvIJ+oHofF1EbdJ48zWr4zSLeNijzksdGJOjq0yR5lhWkj+RjojYtSP70J/wcF+niYVnvaP3OXzr8kvmZGTp2Kq4bJiyfAUHHB0FbefiwqOLHTsaVg6BtPOT+pgUQtIXMzw16jg+CngY/jYCgp3hY+mkrUdeJi6DLSXLzQnnOsikXcj3x0wYOgq7v74rFRaIVtPCTCt4GLmszFWLOb2MVFD8t4ViCZiw++jhKQWs/7aToqnFpg65m0/x/rct5D5iO4Sn9pAC1Ar34ffDTGKzNtEfjp5H0AM/F71L5SQFqBwTdAT/tgaBbaj8R1BAI2oCfFkHQmh0/x08M1PhYm6kcN03P7gsyuhONnxSgphAuffP8ScHPz9paCLrIF3eot5V1Tsdg4KdRhI8d5zvGdxK0UnPRtgbJyFZs/URQW8gWbki+OPXz4+Omm+WkEDS1uVcnfppFurJIl5PNl6A7fiKoMWRV/E2nDb3KvRNvN800E/d0DAJ+GkYk6Prlo6/e5VxcwjZzNJM5TabCdAwCghpGJuiXatvKjugFflpGtj5o8uj3r3L+6Di1KdniFkCBXT8R1Bw+OkmK6dAHP20jK0HDF/TATwS1hqgNupxMu5xc9uLPt1ZHMmPPTwpQg4hK0N/+Orn5LOc359ugHYracdTAT/MI7yR17MWv7y+twTyKG/t+IqhFPD00lyZts0SULuACfgbAFT/VeeQnghrkegU98JMC1CYIWicAP01ytYJSwYfBtQpKBR8IVyoofoaCs6Cr6nGkDo98KKZDiUM/EdQsVykofobDVVbxxxU8glpFKuj63TuVZe58GkIBGhAyQZef5nfiH3V6MkklHRrgZ0gIp9slT19982XS7dk5jXQocOQnglpG+MjHNP9/WPvFU4AGhcYjHxqPfniThAI0LBAUP02jU8W3rReing4xFKCBIe8kvQqqk0QBGhhXNsxEARoa1zVQj5/BIRO02wK2iukQgqDBIVvdrtsCtorpkIGf4SF87LjTAraK6RBx7CeCmueK1mbCzxCRVfEK40v90iHhxFNICGoe2fqgnRew1UqHgGM/mQYaADJBA1rA9qSfCGoe4a1O4QK2vdPhDoKGybV0kk485YGgISArQYMR9NQIKH6GgHCyyNRzOlw5OcSEnwEgKkG7LmCrlw5HGAINFuGdpEB68QgaLCrPxcuHQYcVFD/DRUXQt898pcMJGqABIxN0/X0xDPq17SqeAjRgZILWrVDTjx3jZ8gIq/ifilvxv/eWDhcQNGRU2qDLz32lwwH8DBoVQVd/a3gcFEGDRkXQN4Y7SfgZNjqdpMf5jCYf6egPgoaNyjDTq1df/3pybnWR9f2lO05DOYOfgaNSxV9iUS6Rk++IOB3kAu2cnMY00LVgABwFXf/h6JA/tJag6/tp/XLRVs4OJA0FaOi4lqD/d/jA8Xftz8+tZs1Osqnn/eIRNHScq/jFs92ycP1y2n7yeCUofgaPext0kTz953f5i/W7b563ti2rQ6si1HcbFEGDR9BJKpe2S7qsb9cMR7W2UwfRBj/DR9SL/+HLSWbdzdP/9JaOfiBo+HgZZmoPu2WA6PgZAeMKOugFTviJoMFxXYLiZ3D4EHT7cF37zU59cyhAo8BLCdphhQcvguJnePip4tf3lx4KUVfn9Foi2leBofHUBk2Tu/MHDC8oa90ESaydpNN+YmhwICiYJlJBW1azQ9DguBpBaYOGSZyC4mc0aAiaKqxw50FQ1SuAJxQE3ZkwP3g6uoGf8aAh6C8VFgJHUDiJRhU/n3pLRyfwMyJUqnhjbVAEjYgIe/H4GRMICqaJT1D8jIprEJQR+oARC/ru1W+f/8zS8ounBFULDr5xF3T9wzefPZkUHfgnT+0sYEsNHxfOghaDSx/9/LOJzn6dAwqKnyEjEPTptxu9HY8RFE7iLOj6ZXLz7L05QfEzMgSdpB+/zBT9M4LCkIh68T9+qrKRbI90XARBI0M4zPT20+TmcCnbIdNxCfyMDfE46JufJY++8paOSyBobMjvJK3fTM6s+6mcjkuceJhTJzCMhMatzvXXHxu5k0QBGh1x3YunAI0OBAXTRCUofsYHgoJpYhIUPyMEQcE0MQuKnxEQkaDHfiJo+EQtqDwmjE28guJnFMQjKAVolEQrKH7GQTSCUoDGSayC4mckICiYJhZBj/xE0DiIU1B2TIiGKAVlT6R4iETQEwUogkYBgoJp4hD0uIuEn5HgQ9DVbLopt/tqX4VEU9DMTfyMBW+CLvJn59v3/FIWFGLBl6CVmou2JR5EF8DPePEl6HJSCJruV/LJFskFEFSBxCgdUy95635LUPx0w2i2+RE0/0u43dTdJe0LHA7SC0JdMUazzdMwU+bozYusIz8d4gIUoBoYzbcYxkERVAOj+RaBoPipgtGMQ1AoMZpxkQmKn84YzTkEhRKjORe+oNTwOhjNubgExU93jGYdgkKJ0ayLSlD8FGA074IXlAJUCWHeLSc3L3QSsk9MguKnBGHmzf+ida6vCASFElnmpTf/0joRSEREguKnCFHure9vs/+0krJL6IJSgGohyr00a4DO5RtiniAeQfFThiT7itJzobMx+wEICiUH2ffhHIfn5gVo+WXoZAkPc0csKH4KEeRf2fysHjtTJnBBKUDVEOTfonq+baqWmC2xCIqfUtwzcDUr+u9VN345ObM+R38QFErcM3BRNT6LbvzqkxebheKAE4JCiXMGVgVo1Y1f/rXuYFPYguKnHko5iKC71ILyMLwcpRzMq/hUccg+CkF7LJECbWhlIJ2kLbt+YqgQo/mHoFBiNP8QFEqM5l88gmqm5hphRr36BXb68Pgphhn16hdoClDVlFwrzKhXvwCCasKMevULIKgmzKjXvgB+qsKMeu0LIKgqkmxkRv0pSkHxU4mDfHx4joNTd2fUM1mkhgJUF2bUK18AQXVRmlFPCVpDDa+L0ox6BK1BUF2YUa97AfxUhhn1uhdAUGUQVPcCCKoMgupe4CGTmHRBUNULPGQWqDI6WZkmylNGghWUafTKGM1KBIUSo1mJoFBiNCsDFfQhD3poI8jLeibo6vCpj+IH6d3xL1pIjw8LV1CWE9FFQdCTdJWz5VA/gq7vywq5fUqrk6CyRMEe1yzoop6IlbbOyHKp4gUpgiOUqvjl5O9nSTJdTpKkqNrzF4//PMtf57/IDZwnyc3vygkmq09+l5da2U+S/NTs0PfF5L1p32QJn6hqrrdo+1vrdwEKUH3UBM3UW+TWLR68Xs3K9mf5L/9F/uxS9rs0qQSd5afOb8spUUUJmr9YTqY9kyWSYafkTvcr+WSHUrlu/4ph+h7H8+/yv8OPODnDwaH7gk439Ze7fUHLn5UT7+e1oNNyQbxiPn5z2I4nwZagFKDKHOTnOT/PC3q3ab7sC3pXHFG6l9aCVmVXWrUIql9sN2Tw1AZtkjFVugB+aqNWxV8QdHEsaNbqfPAfVQmaVn8DXgXNrlxetb23h6Bj40vQ4xK0OWVbgvZO1uA69LwAfqrjS9Cy9l7sCFoomyY7h/VPli1BuYc0AMMJOt0T9KAX3xSeybTsIBXqzptyNERBuck5BBJBq6eOTwqa/bYaB60EzQ9/8O9lN71pg968yJ2c1+Og28GeAAVlmsgg+M3QtOs6OQgKJb4ytChdV53XakRQKPGWoenuKNJFAhSUNuggGM3REAVlot0QGM3SIAWFATD6CSAolBj9BBAUSox+AggKJUY/AQSFEqOfAIJCidFPAEGhxOgngKBQYvQTMCMowEk6+jOsngNfUy1SzEkK+70hqG4gg0kK+70hqG4gg0kK+70hqG4gg0kK+70hqG4gg0kK+70hqG4gg0kK+70hqG4gg0kK+70hqG4gg0kK+70hqG4gg0kK+70hqG4gg0kK+70ZvVELUIKgYBoEBdMgKJgGQcE0CAqmQVAwDYKCaRAUTIOgYBoEBdMgKJgGQcE03gVNk+RgR6d+FBuAT/ciuYcst1kRB8p3873VSFK+D8adPNDy49eng/SOVkZSyPMqSZveee5b0Hy/scM9x/qwvi/23L3dieQeMi12yBMHSrMoq5lCkvKdhPJ9r4SBVrNmz7f9IL2jlZEU8rxK0qZ/nnsWtNx+dn7rHKDazuzB6yaSe8jVLM8scaDyPIUkre9vD853CpSWuxEdB+kdrYokz/O02SCpd557FrR5r7Iw2d9cE8k95OLxP2SZJQ60/KuqAJBGagQVBUqTabqnlXO0OlL1nXue7wTqnee+BS0+zM6bPbUxz95aHck5ZHZi3h4SB0of/NesaKKJI9VVvDRQKehREIdoOwfL8rw6tn+eexa0bG5IGqFFlEyHJpJryLx2yTNLHGiRV1956SeOVPcYpIHKTVyPgjhE26ojzPMykEOehyhoWrfXZV5lGaUj6E1VCogj5buxLifyP74BBJXmeRnIIc8DrOLTYsRDWg0Wp6lU8WULKmtNiZPUtMzMVfHiPN8myXYVr9BJWpQjctIeyaJapfJO3EkqszfLammkpjgRB9LpJG0adeR5XgRyyfPQhpmyN3m3H0kScq4xzFTuPJ3Kh5nKT0shUKo0zNTUzPI83xaSPfM8tIH6vIl2EEkQcq4yUL+os1waqW6DSgOlWgP1dVk8rb91jrQvqN2B+mqPe9HpOXmIJpJ7yPK2mzhQWt8JlEaa6wRqKubDIL2j7dbMojw/ELR7ICaLgGkQFEyDoGAaBAXTICiYBkHBNAgKpkFQMA2CgmkQFEyDoGAaBAXTICiYBkHBNAgKpkFQMA2CgmkQFEyDoGAaBPXD23+8fMx/fzV8OoIDQb3w3Redjvp86HSEB4Lq8fZ5ktw8/fbEbxbTbhG6HndFIKgWxTLEycmHaDuvEVOuAQE7IKgW8+RR1oZc/2uxgvAe5bqf3YJIF6aMDgRVIq3FXBwVocWq3lnpOE0nyaMXu6+Wk+mbyc3nm+zbp++3h8IWBNVhfd9e9s0LZVezv5mULYDtq+Ukf3XzT/m3RSm7nAiWrYoSBNVhu37REdUGAqtZcvs+awHc7rxaTpIvNm/y5W6Wk6IA3m42ACUIqsOZurkRtFAwa2VuXxUFZvHt+r4SVLj4dHQgqA5nVmhbTipBi9o7a6JuXxXlbvntHEFPgqA67Jeg222rNjslKII6gKA6NL2b47p+r4rPO1PbVycEpQ26D4LqsL5P8ntIP70sRpv2StCmF5/8oukk/aLuJE33BaUXfwiCKpHv15lTerYnaD0O+lF+SFZCbl8dCco46CEIqsX6ZWbdR+WkkH1ByztJmYf5ePy3u6+OBBXvwRcdCDoE+4KW9+KrrtFm99Uh3Is/AkGH4EDQzeJZN0Hz42APBB2CQ0HzeXQdBH2Dn0cg6BAcCbpZ/t1lQf+NGfXHICiYBkHBNAgKpkFQMA2CgmkQFEyDoGAaBAXTICiYBkHBNAgKpkFQMA2CgmkQFEyDoGAaBAXTICiYBkHBNAgKpkFQMA2CgmkQFEyDoGCa/wd+tiHCONNuHAAAAABJRU5ErkJggg==" /><!-- --></p>
 </div>
 <div id="temperature-corrections" class="section level2">
 <h2>Temperature corrections</h2>
 <p>The <code>fitaci</code> function corrects the estimates of Vcmax and Jmax to a common temperature (25C) by default, but you may want to change this behaviour if you are interested in actual rates at the temperature measured (not corrected for temperature).</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">fit2 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1, <span class="dt">Tcorrect=</span><span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">fitaci</span>(acidata1, <span class="at">Tcorrect=</span><span class="cn">FALSE</span>)</span></code></pre></div>
 <p><strong>Note</strong> that the correction to a common temperature depends on a number of parameters, the default values in <code>fitaci</code> are not necessarily right for your application!</p>
 </div>
 <div id="using-measured-dark-respiration" class="section level2">
 <h2>Using measured dark respiration</h2>
 <p>The <code>fitaci</code> function also estimates dark respiration (Rd) in the fit, but be aware that those estimates are very imprecise. Also, a higher precision of Vcmax and Jmax can be obtained if you measure Rd independently, and use that value in the fit. To do this, add Rd to the dataframe (default column name is ‘Rd’), and set the <code>useRd=TRUE</code> argument, like so:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">acidata2<span class="op">$</span>Rd &lt;-<span class="st"> </span><span class="dv">2</span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">fit3 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata2, <span class="dt">useRd=</span><span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="kw">coef</span>(fit3)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>acidata2<span class="sc">$</span>Rd <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fit3 <span class="ot">&lt;-</span> <span class="fu">fitaci</span>(acidata2, <span class="at">useRd=</span><span class="cn">TRUE</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(fit3)</span></code></pre></div>
 <pre><code>##     Vcmax      Jmax        Rd 
 ##  50.09774 108.26249   2.00000</code></pre>
 </div>
 <div id="using-different-columns" class="section level2">
 <h2>Using different columns</h2>
 <p>When your column names differ from the defaults, you have to specify all column names. It may also be useful to use a different column in some instance, for example air instead of leaf temperature (perhaps the thermocouple was broken):</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">fit4 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1, <span class="dt">varnames=</span><span class="kw">c</span>(<span class="dt">ALEAF=</span><span class="st">&quot;Photo&quot;</span>, <span class="dt">Tleaf=</span><span class="st">&quot;Tair&quot;</span>, <span class="dt">Ci=</span><span class="st">&quot;Ci&quot;</span>, <span class="dt">PPFD=</span><span class="st">&quot;PARi&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fit4 <span class="ot">&lt;-</span> <span class="fu">fitaci</span>(acidata1, <span class="at">varnames=</span><span class="fu">c</span>(<span class="at">ALEAF=</span><span class="st">&quot;Photo&quot;</span>, <span class="at">Tleaf=</span><span class="st">&quot;Tair&quot;</span>, <span class="at">Ci=</span><span class="st">&quot;Ci&quot;</span>, <span class="at">PPFD=</span><span class="st">&quot;PARi&quot;</span>))</span></code></pre></div>
 <p><strong>Note</strong> that the right-hand side of each pair is the name of the variable in your dataframe.</p>
 </div>
 <div id="missing-leaf-temperature-andor-par" class="section level2">
 <h2>Missing leaf temperature and/or PAR</h2>
 <p>If leaf temperature is not available in the dataset, a default value of 25C is assumed, or you can pass it as an argument (see below). Likewise, for PAR (which is used to express Jmax at ‘infinite’ light availability), a value of 1800 is assumed.</p>
 <p>To use different values, set <code>Tleaf</code> and <code>PPFD</code> (PAR) directly:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">fit5 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1, <span class="dt">Tleaf=</span><span class="dv">30</span>, <span class="dt">PPFD=</span><span class="dv">2000</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fit5 <span class="ot">&lt;-</span> <span class="fu">fitaci</span>(acidata1, <span class="at">Tleaf=</span><span class="dv">30</span>, <span class="at">PPFD=</span><span class="dv">2000</span>)</span></code></pre></div>
 <p>You can also set <code>GammaStar</code>, <code>Km</code> directly.</p>
 </div>
 <div id="using-mesophyll-conductance" class="section level2">
 <h2>Using mesophyll conductance</h2>
 <p>It is not possible to estimate mesophyll conductance (gmeso) from A-Ci curves (contrary to what some people have claimed in the literature), but it is possible to include gmeso to arrive at chloroplastic rates of Vcmax and Jmax. This is easily done via,</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">fit6 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1, <span class="dt">gmeso=</span><span class="fl">0.2</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fit6 <span class="ot">&lt;-</span> <span class="fu">fitaci</span>(acidata1, <span class="at">gmeso=</span><span class="fl">0.2</span>)</span></code></pre></div>
 <p><strong>Note:</strong> However note a section in the FAQ Vignette that is included in this package on another approach to account for gmeso.</p>
 </div>
 <div id="fitting-tpu-limitation" class="section level2">
 <h2>Fitting TPU limitation</h2>
 <p>A fairly recent addition to the package (not described in Duursma, 2015) is the estimation of triose phosphate utilization (TPU) limitation. This rate can be estimated like this,</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">fit7 &lt;-<span class="st"> </span><span class="kw">fitaci</span>(acidata1, <span class="dt">fitTPU=</span><span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="kw">plot</span>(fit7)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fit7 <span class="ot">&lt;-</span> <span class="fu">fitaci</span>(acidata1, <span class="at">fitTPU=</span><span class="cn">TRUE</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit7)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 <p><strong>Note:</strong> the horizontal line (Ap) is the TPU-limited rate of photosynthesis.</p>
 <p>The TPU rate can be extracted via:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw">coef</span>(fit7)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(fit7)</span></code></pre></div>
 <pre><code>##      Vcmax       Jmax         Rd        TPU 
 ##  46.765693 107.485590   1.395788   8.820336</code></pre>
 <p><strong>Note:</strong> In many cases this rate cannot be estimated, i.e. when the limitation is not clearly affecting photosynthesis. In that case the estimated coefficient will be NA.</p>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
